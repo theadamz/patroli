@@ -1,0 +1,21 @@
+# MongoDB service
+FROM mongo:5.0
+
+# arguments
+ARG WORKDIR=$WORKDIR
+ARG MONGO_PORT=$MONGO_PORT
+
+# Export port
+EXPOSE $MONGO_PORT
+
+# Set workdir
+WORKDIR $WORKDIR
+
+# Copy file project yang dibutuhkan
+COPY ./entrypoint-mongodb.sh .
+
+# Set permission
+RUN chmod +x ./entrypoint-mongodb.sh
+
+# jalankan entrypoint untuk install kebutuhan
+ENTRYPOINT [ "./entrypoint-mongodb.sh" ]

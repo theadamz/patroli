@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model menu {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  parent_menu_id String      @db.ObjectId
+  code           String      @unique
+  name           String
+  description    String?
+  icon           String?     @default("point")
+  path           String?
+  sort           Int         @default(1)
+  is_active      Boolean     @default(true)
+  created_by     String?     @db.ObjectId
+  updated_by     String?     @db.ObjectId
+  created_at     DateTime    @default(now())
+  updated_at     DateTime?
+  role_menu      role_menu[]
+
+  @@index([parent_menu_id])
+  @@map("menus")
+}
+
+model role {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  code       String      @unique
+  name       String
+  created_by String?     @db.ObjectId
+  updated_by String?     @db.ObjectId
+  created_at DateTime    @default(now())
+  updated_at DateTime?
+  user       user[]
+  role_menu  role_menu[]
+
+  @@map("roles")
+}
+
+model role_menu {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  role_id      String? @db.ObjectId
+  role         role?   @relation(fields: [role_id], references: [id])
+  menu_id      String  @db.ObjectId
+  menu         menu    @relation(fields: [menu_id], references: [id])
+  allow_create Boolean @default(false)
+  allow_edit   Boolean @default(false)
+  allow_delete Boolean @default(false)
+
+  @@unique([role_id, menu_id])
+  @@index([role_id])
+  @@index([menu_id])
+  @@map("role_menus")
+}
+
+model user {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  email      String    @unique
+  password   String
+  name       String
+  role_id    String?   @db.ObjectId
+  role       role?     @relation(fields: [role_id], references: [id])
+  created_by String?   @db.ObjectId
+  updated_by String?   @db.ObjectId
+  created_at DateTime  @default(now())
+  updated_at DateTime?
+
+  @@map("users")
+}

@@ -1,0 +1,30 @@
+# Node API service
+FROM node:lts-bullseye-slim
+
+# arguments
+ARG WORKDIR=$WORKDIR
+ARG API_PORT_EXPOSE=$API_PORT_EXPOSE
+
+# Export port
+EXPOSE $API_PORT_EXPOSE
+
+# Set workdir
+WORKDIR $WORKDIR
+
+# Install yarn
+# RUN apt-get update && apt-get install -y curl
+# RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+
+# Copy file project yang dibutuhkan
+COPY ./entrypoint-api.sh .
+COPY ./backend/src ./src
+COPY ./backend/.env .
+COPY ./backend/package.json .
+COPY ./backend/tsconfig.json .
+COPY ./backend/yarn.lock .
+
+# Set permission
+RUN chmod +x ./entrypoint-api.sh
+
+# jalankan entrypoint untuk install kebutuhan
+ENTRYPOINT [ "./entrypoint-api.sh" ]

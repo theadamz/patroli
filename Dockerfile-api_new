@@ -1,0 +1,22 @@
+# Node API service
+FROM node:lts-bullseye-slim
+
+# arguments
+ARG WORKDIR=$WORKDIR
+ARG API_PORT_EXPOSE=$API_PORT_EXPOSE
+
+# Export port
+EXPOSE $API_PORT_EXPOSE
+
+# Set workdir
+WORKDIR $WORKDIR
+
+# Install yarn
+RUN apt-get update && apt-get install -y curl
+RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+
+# Copy file project yang dibutuhkan
+COPY ./backend ./src
+
+# jalankan server
+CMD ["yarn;", "yarn", "dev;"]
