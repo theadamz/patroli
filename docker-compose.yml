@@ -19,8 +19,8 @@ services:
       - ./backend/package.json:${WORKDIR}/package.json
       - ./backend/tsconfig.json:${WORKDIR}/tsconfig.json
       - ./backend/yarn.lock:${WORKDIR}/yarn.lock
-    networks:
-      - patroli-network
+    # networks:
+    #   - patroli-network
     env_file:
       - .env
     # depends_on:
@@ -56,6 +56,6 @@ volumes:
     driver: local
     # external: true
 
-networks:
-  patroli-network: 
-    driver: bridge
+# networks:
+#   patroli-network: 
+#     driver: bridge

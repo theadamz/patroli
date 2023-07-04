@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsnd --respawn --transpile-only --exit-child src/app.ts",
-    "dev-docker": "tsnd --respawn --transpile-only --exit-child /app/src/app.ts",
+    "dev-docker": "ts-node-dev --poll --respawn --transpile-only src/app.ts",
     "build": "tsc -p tsconfig.json"
   },
   "prisma": {
