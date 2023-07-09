@@ -1,3 +1,8 @@
+####################################################################################
+# in production NODE_ENV `docker compose build` not wrong with it, but when I use 
+# `docker compose up` it cannot run. I dunno why.
+####################################################################################
+
 # Node API service
 FROM node:lts-bullseye-slim as base
 
@@ -7,7 +12,7 @@ ARG API_PORT_EXPOSE=$API_PORT_EXPOSE
 ARG NODE_ENV=$NODE_ENV
 
 # environment for building node
-ENV NODE_ENV=$NODE_ENV
+ENV NODE_ENV=development
 
 # expose port
 EXPOSE $API_PORT_EXPOSE
@@ -19,11 +24,14 @@ WORKDIR $WORKDIR
 COPY ./backend/package.json .
 COPY ./backend/pnpm-lock.yaml .
 
-# install pnpm and depencies dari lock file
+# install pnpm and depencies from lock file
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 # copy files that we need
 COPY ./backend .
+
+# build if production
+RUN if [ "$NODE_ENV" = "production" ]; then pnpm run build; fi
 
 ############################# DEVELOPMENT STAGE #############################
 FROM base as development
@@ -44,51 +52,28 @@ FROM node:lts-bullseye-slim as production
 # arguments/variables inside Dockerfile
 ARG WORKDIR=$WORKDIR
 
+# environment inside Dockerfile
+ENV NODE_ENV=production
+
 # set workdir
 WORKDIR $WORKDIR
-
-# environment for building node
-ENV NODE_ENV=development
 
 # copy file package.json and lock file
 COPY ./backend/package.json .
 COPY ./backend/pnpm-lock.yaml .
 
 # install pnpm and depencies from lock file
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
 
-# copy sources
-COPY ./backend .
-
-# build
-RUN pnpm run build
-
-# move files from /app/dist folder to /
-RUN mv ./dist /
-
-# delete folder /app
-RUN rm -rf $WORKDIR
-
-# change workdir
-WORKDIR /dist
-
-# environment inside Dockerfile
-ENV NODE_ENV=production
-
-# copy file package.json and lock file
-COPY ./backend/package.json .
-COPY ./backend/pnpm-lock.yaml .
-
-# install dependencies production only
-RUN pnpm install --frozen-lockfile --prod
-
-# prisma copy schema
-COPY ./backend/src/databases/prisma/schema.prisma ./databases/prisma/schema.prisma
+# copy files that we need from build stage
+COPY --from=base $WORKDIR/dist .
+COPY --from=base $WORKDIR/src/databases/prisma/schema.prisma ./databases/prisma/schema.prisma
+COPY --from=base $WORKDIR/.env ./.env
 
 # prisma generate
 RUN pnpm dlx prisma generate --schema=./databases/prisma/schema.prisma
 
-# prisma seed (optional)
+# prisma seed
 # RUN node ./databases/prisma/seed.js
 
 # run server

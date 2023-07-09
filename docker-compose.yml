@@ -3,59 +3,51 @@ version: "3.8"
 services:
   # Node API service
   api:
+    restart: unless-stopped
     build:
       context: .
+      target: ${NODE_ENV}
       dockerfile: Dockerfile-api
       args:
         - WORKDIR=${WORKDIR}
         - API_PORT_EXPOSE=${API_PORT_EXPOSE}
+        - NODE_ENV=${NODE_ENV}
     ports:
       - ${API_PORT_EXPOSE}:${API_PORT}
     volumes:
-      # - ./backend:${WORKDIR}:rw
       - ./entrypoint-api.sh:${WORKDIR}/entrypoint-api.sh
-      - ./backend/src:${WORKDIR}/src
-      - ./backend/.env:${WORKDIR}/.env
-      - ./backend/package.json:${WORKDIR}/package.json
-      - ./backend/tsconfig.json:${WORKDIR}/tsconfig.json
-      - ./backend/yarn.lock:${WORKDIR}/yarn.lock
-    # networks:
-    #   - patroli-network
+      - ./backend:${WORKDIR}
+      - ${WORKDIR}/node_modules # Do not sync this folder  
+      - ${WORKDIR}/dist # Do not sync this folder  
     env_file:
       - .env
-    # depends_on:
-    #   - mongodb
+    depends_on:
+      - mongodb
 
   # MongoDB service
-  # mongodb:
-  #   restart: always
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile-mongodb
-  #     args:
-  #       - WORKDIR=${WORKDIR}
-  #       - MONGO_PORT=${MONGO_PORT}
-  #   ports:
-  #     - ${MONGO_PORT}:${MONGO_PORT}
-  #   volumes:
-  #     - ./entrypoint-mongodb.sh:${WORKDIR}/entrypoint-mongodb.sh
-  #     - mongodb-data:${MONGO_PATH}
-  #   networks:
-  #     - patroli-network
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-  #     - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-  #     - MONGO_HOST=${MONGO_HOST}
-  #     - MONGO_PORT=${MONGO_PORT}
-  #   env_file:
-  #     - .env
+  mongodb:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile-mongodb
+      args:
+        - WORKDIR=${WORKDIR}
+        - MONGO_PORT=${MONGO_PORT}
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    volumes:
+      - ./entrypoint-mongodb.sh:${WORKDIR}/entrypoint-mongodb.sh
+      - mongodb-data:${MONGO_PATH}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGODB_ADVERTISED_HOSTNAME=${MONGO_HOST}
+    env_file:
+      - .env
 
 volumes:
   mongodb-data:
     driver: local
-    # external: true
-
-# networks:
-#   patroli-network: 
-#     driver: bridge

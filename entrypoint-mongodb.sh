@@ -3,6 +3,15 @@
 # info file
 echo "eksekusi file: entrypoint-mongodb.sh";
 
+echo "test arguments from Dockerfile-mongodb:";
+echo "WORKDIR=$WORKDIR";
+echo "MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME";
+echo "MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD";
+echo "MONGO_INITDB_DATABASE=$MONGO_INITDB_DATABASE";
+echo "MONGO_HOST=$MONGO_HOST";
+echo "MONGO_PORT=$MONGO_PORT";
+echo "MONGODB_ADVERTISED_HOSTNAME=$MONGODB_ADVERTISED_HOSTNAME";
+
 # replication
 echo "execute replication";
 # we take over the default & start mongo in replica set mode in a background task

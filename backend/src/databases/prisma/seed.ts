@@ -50,7 +50,7 @@ async function clearDataCollections() {
   });
 }
 
-if (process.env.ENVIRONMENT !== "production") {
+if (process.env.NODE_ENV !== "production") {
   main().catch((err) => {
     console.log(err);
   });

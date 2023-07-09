@@ -1,31 +1,37 @@
 import { FastifyInstance } from "fastify";
 import fs from "fs";
+import { join, parse } from "path";
 
 export default async function registerRoutes(
   path: string,
   fastify: FastifyInstance
 ) {
-  const extFile: string = ".ts";
-  const suffixFileName: string = "route.ts";
+  // file suffix that will load
+  const suffixFileName: string = "route";
 
-  // Ambil folder dari variabel path
-  const routeFiles = fs.readdirSync(path);
+  // get files from path
+  const schemaFiles = fs.readdirSync(path);
 
-  // Baca folder
-  routeFiles.forEach(async (file) => {
-    // jika file tidak berakhiran dengan nama route.ts
-    if (!file.endsWith(suffixFileName)) {
-      // Jika file tidak memiliki akhiran .ts
-      if (!file.endsWith(extFile)) {
-        // Menjalankan fungsi kembali
-        await registerRoutes(`${path}/${file}`, fastify);
-      }
+  // read files
+  schemaFiles.forEach(async (file) => {
+    // file with path
+    const fileWithPath = join(path, file);
+
+    // remove ext
+    const ext = parse(file).ext;
+
+    // for check purpose
+    const check = fileWithPath.replace(ext, "");
+
+    // if check not end with suffixFileName and ext === "", execute this function again with fileWithPath
+    if (!check.endsWith(suffixFileName) && ext === "") {
+      await registerRoutes(fileWithPath, fastify);
     } else {
-      // import file secara dinamis
-      const route = require(`../modules/${path.replace(
-        "./src/modules/",
-        ""
-      )}/${file}`);
+      // if check not end with suffixFileName
+      if (!check.endsWith(suffixFileName)) return;
+
+      // import file dynamic
+      const route = require(join(path, file));
 
       // Register route
       fastify.register(

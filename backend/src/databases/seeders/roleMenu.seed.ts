@@ -23,9 +23,9 @@ async function run() {
   });
 
   // Loop roles
-  roles.forEach(async function (role) {
+  roles.forEach(async function (role: any) {
     // Loop menus
-    menus.forEach(async function (menu) {
+    menus.forEach(async function (menu: any) {
       // Create role_menu
       await prisma.role_menu.create({
         data: {
@@ -62,7 +62,7 @@ async function run() {
     },
   });
 
-  menuOperator.forEach(async function (menu) {
+  menuOperator.forEach(async function (menu: any) {
     // Create role_menu
     await prisma.role_menu.create({
       data: {

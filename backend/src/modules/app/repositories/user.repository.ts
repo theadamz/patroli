@@ -69,6 +69,7 @@ class UserRepository {
     ]);
 
     return {
+      // @ts-ignore
       data: users.map(({ role, ...user }) => {
         return { ...user, role_name: role?.name };
       }),
@@ -129,7 +130,7 @@ class UserRepository {
           role_id: input.role_id,
         },
       })
-      .then(async (user) => {
+      .then(async (user: any) => {
         return user === null
           ? null
           : ({

@@ -1,19 +1,23 @@
 # What is this?
 
-This apps called patroli, aplication that 
+panic button and community report aplication.
 
-# What are we using?
+# Contents
 
-- Docker - Containerized Application Development
-- Fastify - Web framework
-- Prisma - Database ORM
-- Zod - Request and response validation
-- Swagger - API docs
-- Typescript - Types
-- MongoDB - Database
-- rethinkDB - realtime database
-- socket.io - realtime communication
+* backend - `./backend`
+* web-app - `to do list`
+* mobile-app - `to do list`
 
-# Say thanks
+# How to use this?
 
-- You can donate here:
+* Make sure you have docker already installed.
+* Open your terminal, use bash if you use windows.
+* Run this command
+
+  ```
+  docker compose build
+  docker compose up
+  ```
+* Open your browser with URL `http://localhost:5000/v1/basic/healthcheck` for testing.
+* If you see response json then you good to dev.
+* Edit / add files under each folder that you need.

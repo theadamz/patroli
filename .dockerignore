@@ -1,15 +1,18 @@
 # backend
+./backend/.pnpm-store
 ./backend/.vscode
 ./backend/node_modules
-./backend/.gitattributes
-./backend/.gitignore
-./backend/package-lock.json
 ./backend/README.md
-./backend/yarn-error.log
 
 # docker
 .dockerignore
 docker-compose.yml
-Dockerfile
+Dockerfile-api
+Dockerfile-mongodb
 LICENSE
 Makefile
+
+# root
+.gitattributes
+.gitignore
+.git

@@ -1,4 +1,4 @@
-# Backend
+# What is this?
 
 backend for patroli
 
@@ -16,16 +16,17 @@ backend for patroli
 # How to create project?
 
 ```
-yarn init
-npx typescript --init
+pnpm init
+pnpm dlx typescript --init
 ```
 
 # How to start
 
 ```
-yarn add fastify @fastify/jwt @fastify/sensible fastify-zod zod zod-to-json-schema bcrypt bson
-yarn add ts-node-dev typescript @types/node --dev
-yarn add @types/bcrypt --dev
+pnpm add fastify @fastify/jwt @fastify/sensible fastify-zod zod zod-to-json-schema bcrypt bson
+pnpm add ts-node-dev typescript @types/node -D
+pnpm add typescript ts-node @types/node -D
+pnpm add @types/bcrypt -D
 
 ```
 
@@ -34,13 +35,13 @@ yarn add @types/bcrypt --dev
 - install prisma client
 
   ```
-  yarn add @prisma/client
-  yarn add ts-node-dev typescript @types/node --dev
+  pnpm add @prisma/client
+  pnpm add ts-node-dev typescript @types/node -D
   ```
 - create schema with mongodb provider
 
   ```
-  npx prisma init --datasource-provider mongodb
+  pnpm dlx prisma init --datasource-provider mongodb
   ```
 - Change file `.env` DATABASE_URL according to your mongodb setting
 - Move prisma folder inside databases folder
@@ -55,7 +56,7 @@ yarn add @types/bcrypt --dev
 - Migrate the schema
 
   ```
-  npx prisma migrate dev --name init
+  pnpm dlx prisma migrate dev --name init
 
   No need to run migrate command according to this link :
   https://www.prisma.io/docs/concepts/database-connectors/mongodb
@@ -64,9 +65,9 @@ yarn add @types/bcrypt --dev
 - Run this command everytime you make changes in any schema :
 
   ```
-  npx prisma generate
+  pnpm dlx prisma generate
   or
-  npx prisma db push
+  pnpm dlx prisma db push
   ```
 - Prisma docs :
 

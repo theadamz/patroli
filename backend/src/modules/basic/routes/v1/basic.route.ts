@@ -1,9 +1,12 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
 async function routes(server: FastifyInstance) {
-  server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-    reply.send({ message: "Hello from basic route 123" });
-  });
+  server.get(
+    "/healthcheck",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      reply.send({ message: "OK" });
+    }
+  );
 }
 
 export default routes;
