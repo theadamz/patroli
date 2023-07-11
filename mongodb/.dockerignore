@@ -1,0 +1,8 @@
+# mongodb
+Dockerfile-mongodb
+.dockerignore
+
+# git
+.gitattributes
+.gitignore
+.git

@@ -16,7 +16,10 @@ panic button and community report aplication.
 
   ```
   docker compose build
-  docker compose up
+  docker compose up -d
+
+  docker ps (to see active container)
+  docker exec -it <container-name> sh (use shell inside container)
   ```
 * Open your browser with URL `http://localhost:5000/v1/basic/healthcheck` for testing.
 * If you see response json then you good to dev.

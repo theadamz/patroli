@@ -2,17 +2,20 @@
 ./backend/.pnpm-store
 ./backend/.vscode
 ./backend/node_modules
+./backend/.gitignore
+./backend/Dockerfile-api
 ./backend/README.md
+
+# mongodb
+./mongodb/Dockerfile-mongodb
 
 # docker
 .dockerignore
 docker-compose.yml
-Dockerfile-api
-Dockerfile-mongodb
 LICENSE
 Makefile
 
-# root
+# git
 .gitattributes
 .gitignore
 .git

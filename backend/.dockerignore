@@ -1,0 +1,11 @@
+# backend
+.pnpm-store
+.vscode
+node_modules
+Dockerfile-api
+README.md
+
+# git
+.gitattributes
+.gitignore
+.git

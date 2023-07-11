@@ -3,11 +3,12 @@ version: "3.8"
 services:
   # Node API service
   api:
+    container_name: patroli-api
     restart: unless-stopped
     build:
-      context: .
-      target: ${NODE_ENV}
+      context: ./backend
       dockerfile: Dockerfile-api
+      target: ${NODE_ENV}
       args:
         - WORKDIR=${WORKDIR}
         - API_PORT_EXPOSE=${API_PORT_EXPOSE}
@@ -15,10 +16,10 @@ services:
     ports:
       - ${API_PORT_EXPOSE}:${API_PORT}
     volumes:
-      - ./entrypoint-api.sh:${WORKDIR}/entrypoint-api.sh
+      - ./backend/entrypoint-api.sh:${WORKDIR}/entrypoint-api.sh
       - ./backend:${WORKDIR}
-      - ${WORKDIR}/node_modules # Do not sync this folder  
-      - ${WORKDIR}/dist # Do not sync this folder  
+      - ${WORKDIR}/node_modules # Do not sync this file/folder
+      - ${WORKDIR}/dist # Do not sync this file/folder
     env_file:
       - .env
     depends_on:
@@ -26,9 +27,10 @@ services:
 
   # MongoDB service
   mongodb:
+    container_name: patroli-mongodb
     restart: unless-stopped
     build:
-      context: .
+      context: ./mongodb
       dockerfile: Dockerfile-mongodb
       args:
         - WORKDIR=${WORKDIR}
@@ -36,7 +38,7 @@ services:
     ports:
       - ${MONGO_PORT}:${MONGO_PORT}
     volumes:
-      - ./entrypoint-mongodb.sh:${WORKDIR}/entrypoint-mongodb.sh
+      - ./mongodb/entrypoint-mongodb.sh:${WORKDIR}/entrypoint-mongodb.sh
       - mongodb-data:${MONGO_PATH}
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
