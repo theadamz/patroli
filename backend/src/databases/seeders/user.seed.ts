@@ -28,18 +28,21 @@ async function run() {
         name: "Developer",
         password: await hashPassword("123456"),
         role_id: devRole?.id,
+        is_active: true,
       },
       {
         email: "adiena14@gmail.com",
         name: "Administrator",
         password: await hashPassword("123456"),
         role_id: administratorRole?.id,
+        is_active: true,
       },
       {
         email: "operator@email.com",
         name: "Operator",
         password: await hashPassword("123456"),
         role_id: operatorRole?.id,
+        is_active: true,
       },
     ],
   });

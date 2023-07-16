@@ -1,12 +1,12 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import {
-  deleteUser,
-  listUser,
-  getUserByIdOrEmail,
-  createUser,
-  updateUser,
-} from "../../controllers/user.controller";
-import { $ref } from "../../schemas/user.schema";
+  createUserHandler,
+  deleteUserHandler,
+  getUserByIdOrEmailHandler,
+  getUsersHandler,
+  updateUserHandler,
+} from "@modules/application/controllers/user.controller";
+import { $ref } from "@modules/application/schemas/user.schema";
 
 export default async function userRoutes(
   server: FastifyInstance
@@ -14,6 +14,7 @@ export default async function userRoutes(
   server.get(
     "/",
     {
+      preHandler: [server.JWTAuthenticate],
       schema: {
         querystring: $ref("userQueryParametersSchema"),
         response: {
@@ -21,12 +22,13 @@ export default async function userRoutes(
         },
       },
     },
-    listUser
+    getUsersHandler
   );
 
   server.get(
     "/:id",
     {
+      preHandler: [server.JWTAuthenticate],
       schema: {
         params: $ref("userParamsRequestSchema"),
         response: {
@@ -34,12 +36,13 @@ export default async function userRoutes(
         },
       },
     },
-    getUserByIdOrEmail
+    getUserByIdOrEmailHandler
   );
 
   server.post(
     "/",
     {
+      preHandler: [server.JWTAuthenticate],
       schema: {
         body: $ref("userCreateRequestSchema"),
         response: {
@@ -47,36 +50,39 @@ export default async function userRoutes(
         },
       },
     },
-    createUser
+    createUserHandler
   );
 
   server.put(
-    "/",
+    "/:id",
     {
+      preHandler: [server.JWTAuthenticate],
       schema: {
+        params: $ref("userParamsRequestSchema"),
         body: $ref("userUpdateRequestSchema"),
         response: {
           200: $ref("userResponseSchema"),
         },
       },
     },
-    updateUser
+    updateUserHandler
   );
 
   server.delete(
-    "/",
+    "/:id",
     {
+      preHandler: [server.JWTAuthenticate],
       schema: {
-        body: $ref("userDeleteRequestSchema"),
+        params: $ref("userParamsRequestSchema"),
         response: {
           200: $ref("userResponseSchema"),
         },
       },
     },
-    deleteUser
+    deleteUserHandler
   );
 }
 
 export const options: FastifyPluginOptions = {
-  prefix: "v1/user",
+  prefix: "v1/users",
 };

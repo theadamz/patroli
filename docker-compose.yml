@@ -18,8 +18,8 @@ services:
     volumes:
       - ./backend/entrypoint-api.sh:${WORKDIR}/entrypoint-api.sh
       - ./backend:${WORKDIR}
-      - ${WORKDIR}/node_modules # Do not sync this file/folder
-      - ${WORKDIR}/dist # Do not sync this file/folder
+      - api-node_modules:${WORKDIR}/node_modules # Do not sync this file/folder
+      - api-dist:${WORKDIR}/dist # Do not sync this file/folder
     env_file:
       - .env
     depends_on:
@@ -40,6 +40,7 @@ services:
     volumes:
       - ./mongodb/entrypoint-mongodb.sh:${WORKDIR}/entrypoint-mongodb.sh
       - mongodb-data:${MONGO_PATH}
+      - mongodb-configdb:${MONGO_CONFIG_PATH}
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -51,5 +52,11 @@ services:
       - .env
 
 volumes:
+  api-node_modules:
+    driver: local
+  api-dist:
+    driver: local
   mongodb-data:
+    driver: local
+  mongodb-configdb:
     driver: local

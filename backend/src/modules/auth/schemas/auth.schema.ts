@@ -2,7 +2,7 @@ import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 // Base schema
-const authBaseSchema = {
+const authSchema = {
   email: z
     .string({
       required_error: "email dibutuhkan",
@@ -13,22 +13,29 @@ const authBaseSchema = {
   password: z.string(),
 };
 
+const userInfo = z.object({
+  id: z.string(),
+});
+
+// Enums
+const platformEnum = z.enum(["web", "mobile_officer", "mobile_community"]);
+
 // Objects request
 const authLoginRequestSchema = z.object({
-  ...authBaseSchema,
+  ...authSchema,
 });
 
 // Objects response
 const authLoginResponseSchema = z.object({
-  statusCode: z.number(),
-  message: z.string().optional(),
-  data: z
-    .object({
-      accessToken: z.string(),
-      refreshToken: z.string(),
-    })
-    .nullish(),
+  email: z.string().email(),
+  name: z.string(),
+  role_name: z.string(),
+  token: z.string(),
 });
+
+// Types enums
+export type PlatformEnum = z.infer<typeof platformEnum>;
+export type UserInfo = z.infer<typeof userInfo>;
 
 // Types request
 export type AuthLoginRequestSchema = z.infer<typeof authLoginRequestSchema>;

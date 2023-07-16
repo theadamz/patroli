@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum platform {
+  web
+  mobile_officer
+  mobile_community
+}
+
 model menu {
   id             String      @id @default(auto()) @map("_id") @db.ObjectId
   parent_menu_id String      @db.ObjectId
@@ -22,7 +28,7 @@ model menu {
   is_active      Boolean     @default(true)
   created_by     String?     @db.ObjectId
   updated_by     String?     @db.ObjectId
-  created_at     DateTime    @default(now())
+  created_at     DateTime?   @default(now())
   updated_at     DateTime?
   role_menu      role_menu[]
 
@@ -36,7 +42,7 @@ model role {
   name       String
   created_by String?     @db.ObjectId
   updated_by String?     @db.ObjectId
-  created_at DateTime    @default(now())
+  created_at DateTime?   @default(now())
   updated_at DateTime?
   user       user[]
   role_menu  role_menu[]
@@ -45,14 +51,18 @@ model role {
 }
 
 model role_menu {
-  id           String  @id @default(auto()) @map("_id") @db.ObjectId
-  role_id      String? @db.ObjectId
-  role         role?   @relation(fields: [role_id], references: [id])
-  menu_id      String  @db.ObjectId
-  menu         menu    @relation(fields: [menu_id], references: [id])
-  allow_create Boolean @default(false)
-  allow_edit   Boolean @default(false)
-  allow_delete Boolean @default(false)
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  role_id      String?   @db.ObjectId
+  role         role?     @relation(fields: [role_id], references: [id])
+  menu_id      String    @db.ObjectId
+  menu         menu      @relation(fields: [menu_id], references: [id])
+  allow_create Boolean   @default(false)
+  allow_edit   Boolean   @default(false)
+  allow_delete Boolean   @default(false)
+  created_by   String?   @db.ObjectId
+  updated_by   String?   @db.ObjectId
+  created_at   DateTime? @default(now())
+  updated_at   DateTime?
 
   @@unique([role_id, menu_id])
   @@index([role_id])
@@ -67,10 +77,21 @@ model user {
   name       String
   role_id    String?   @db.ObjectId
   role       role?     @relation(fields: [role_id], references: [id])
+  is_active  Boolean   @default(true)
   created_by String?   @db.ObjectId
   updated_by String?   @db.ObjectId
-  created_at DateTime  @default(now())
+  created_at DateTime? @default(now())
   updated_at DateTime?
 
   @@map("users")
+}
+
+model users_logs {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String    @db.ObjectId
+  platform   platform
+  created_at DateTime? @default(now())
+
+  @@index([platform])
+  @@map("users_logs")
 }

@@ -1,53 +1,16 @@
-import httpErrors from "http-errors";
-import UserRepository from "../../app/repositories/user.repository";
-import {
-  AuthLoginRequestSchema,
-  AuthLoginResponseSchema,
-} from "../schemas/auth.schema";
-import { comparePassword } from "../../../utilities/hashPassword";
+import prisma from "@utilities/prisma";
+import { PlatformEnum } from "@modules/auth/schemas/auth.schema";
 
 export default class AuthService {
-  protected repository: UserRepository;
-
-  constructor() {
-    this.repository = new UserRepository();
-  }
-
-  async login(input: AuthLoginRequestSchema): Promise<AuthLoginResponseSchema> {
-    // get data
-    const user = await this.repository.getUserByEmail(input.email);
-
-    // if user null
-    if (user === null) {
-      return {
-        statusCode: httpErrors.NotFound().statusCode,
-        message: "Email atau password salah.",
-      };
-    }
-
-    // check password
-    const correctPassword = await comparePassword(
-      input.password,
-      user.password
-    );
-    if (!correctPassword) {
-      return {
-        statusCode: httpErrors.Unauthorized().statusCode,
-        message: "Email atau password salah.",
-      };
-    }
-
-    // generate token
-    const accessToken = "";
-    const refreshToken = "";
-
-    return {
-      statusCode: 200,
-      message: "Data ditemukan.",
+  async createUserLog(user_id: string, platform: PlatformEnum) {
+    const log = await prisma.users_logs.create({
       data: {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        user_id: user_id,
+        platform: platform,
+        created_at: new Date(),
       },
-    };
+    });
+
+    return log;
   }
 }
