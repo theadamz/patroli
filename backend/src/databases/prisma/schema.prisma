@@ -16,6 +16,18 @@ enum platform {
   mobile_community
 }
 
+enum actor {
+  operator
+  officer
+  citizen
+}
+
+enum complain_status {
+  open
+  progress
+  done
+}
+
 model menu {
   id             String      @id @default(auto()) @map("_id") @db.ObjectId
   parent_menu_id String      @db.ObjectId
@@ -72,21 +84,25 @@ model role_menu {
 
 model user {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  public_id  String    @unique @db.ObjectId
   email      String    @unique
   password   String
   name       String
   role_id    String?   @db.ObjectId
   role       role?     @relation(fields: [role_id], references: [id])
+  actor      actor     @default(citizen)
   is_active  Boolean   @default(true)
   created_by String?   @db.ObjectId
   updated_by String?   @db.ObjectId
   created_at DateTime? @default(now())
   updated_at DateTime?
+  officer    officer[]
+  citizen    citizen[]
 
   @@map("users")
 }
 
-model users_logs {
+model user_log {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
   user_id    String    @db.ObjectId
   platform   platform
@@ -94,4 +110,84 @@ model users_logs {
 
   @@index([platform])
   @@map("users_logs")
+}
+
+model user_token {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String    @db.ObjectId
+  token      String    @unique
+  created_at DateTime? @default(now())
+
+  @@unique([user_id, token])
+  @@index([user_id])
+  @@map("users_tokens")
+}
+
+model officer {
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  user_id          String     @db.ObjectId
+  user             user       @relation(fields: [user_id], references: [id])
+  code             String     @unique
+  name             String
+  phone_no         String     @unique
+  email            String     @unique
+  photo_file       String?
+  rating           Float      @default(0)
+  last_coordinates Float[]
+  complain         complain[]
+
+  @@map("officers")
+}
+
+model citizen {
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  user_id          String     @db.ObjectId
+  user             user       @relation(fields: [user_id], references: [id])
+  id_card_number   String     @unique // nomor KTP
+  name             String
+  nick_name        String
+  phone_no         String     @unique
+  email            String     @unique
+  photo_file       String?
+  last_coordinates Float[]
+  complain         complain[]
+
+  @@map("citizens")
+}
+
+model complain_category {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  created_by String?    @db.ObjectId
+  updated_by String?    @db.ObjectId
+  created_at DateTime?  @default(now())
+  updated_at DateTime?
+  complain   complain[]
+
+  @@map("complain_categories")
+}
+
+model complain {
+  id                   String            @id @default(auto()) @map("_id") @db.ObjectId
+  complain_category_id String            @db.ObjectId
+  category             complain_category @relation(fields: [complain_category_id], references: [id])
+  doc_no               String            @unique
+  doc_date             DateTime          @db.Date
+  citizen_id           String?           @db.ObjectId
+  citizen              citizen?          @relation(fields: [citizen_id], references: [id])
+  officer_id           String            @db.ObjectId
+  officer              officer           @relation(fields: [officer_id], references: [id])
+  description          String
+  video_file           String?
+  picture_files        String[]
+  status               complain_status   @default(open)
+  rating               Float             @default(0)
+  logs                 Json
+  coordinates          Float[]
+  created_by           String?           @db.ObjectId
+  updated_by           String?           @db.ObjectId
+  created_at           DateTime?         @default(now())
+  updated_at           DateTime?
+
+  @@map("complains")
 }

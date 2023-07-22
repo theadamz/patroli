@@ -15,7 +15,7 @@ export default async function userRoutes(
   server.get(
     "/",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth],
       schema: {
         querystring: $ref("roleQueryParametersSchema"),
         response: {
@@ -29,7 +29,7 @@ export default async function userRoutes(
   server.get(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         response: {
@@ -43,7 +43,7 @@ export default async function userRoutes(
   server.post(
     "/",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         body: $ref("roleCreateRequestSchema"),
         response: {
@@ -57,7 +57,7 @@ export default async function userRoutes(
   server.put(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         body: $ref("roleUpdateRequestSchema"),
@@ -72,7 +72,7 @@ export default async function userRoutes(
   server.delete(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         response: {
@@ -86,7 +86,7 @@ export default async function userRoutes(
   server.get(
     "/accesses/:role_id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth],
       schema: {
         params: $ref("roleAccessParamsParametersSchema"),
         response: {

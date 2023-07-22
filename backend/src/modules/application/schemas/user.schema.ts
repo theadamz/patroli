@@ -5,11 +5,13 @@ import { ObjectId } from "bson";
 // Base schema
 const userSchema = {
   id: z.string().nullish(),
+  public_id: z.boolean().nullish(),
   email: z.string().email(),
   password: z.string().nullish(),
   name: z.string(),
   role_id: z.string().nullish(),
   role_name: z.string().nullish(),
+  actor: z.enum(["operator", "officer", "citizen"]),
   is_active: z.boolean().nullish(),
   created_by: z.string().nullish(),
   updated_by: z.string().nullish(),
@@ -79,6 +81,7 @@ const userResponseSchema = z.object({
   id: z.string(),
   role_id: z.string().nullish(),
   role_name: z.string().nullish(),
+  public_id: z.string(),
 });
 
 const usersResponseSchema = z.object({

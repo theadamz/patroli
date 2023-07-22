@@ -1,3 +1,4 @@
+import { ObjectId } from "bson";
 import { hashPassword } from "../../utilities/hashPassword";
 import prisma from "../../utilities/prisma";
 
@@ -28,21 +29,30 @@ async function run() {
         name: "Developer",
         password: await hashPassword("123456"),
         role_id: devRole?.id,
+        actor: "operator",
         is_active: true,
+        public_id: new ObjectId().toString(),
+        created_by: null,
       },
       {
         email: "adiena14@gmail.com",
         name: "Administrator",
         password: await hashPassword("123456"),
         role_id: administratorRole?.id,
+        actor: "operator",
         is_active: true,
+        public_id: new ObjectId().toString(),
+        created_by: null,
       },
       {
         email: "operator@email.com",
         name: "Operator",
         password: await hashPassword("123456"),
         role_id: operatorRole?.id,
+        actor: "operator",
         is_active: true,
+        public_id: new ObjectId().toString(),
+        created_by: null,
       },
     ],
   });

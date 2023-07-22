@@ -7,9 +7,6 @@ declare global {
       DOMAIN: string;
       PORT: number;
       SECRET_KEY: string;
-      JWT_TOKEN_EXPIRE_REFRESH: string;
-      JWT_TOKEN_EXPIRE_ACCESS: string;
-      JWT_USE_ACCESS_TOKEN: string;
       DATABASE_URL: string;
     }
   }

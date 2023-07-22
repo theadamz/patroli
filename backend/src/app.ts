@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 import Fastify, { FastifyInstance } from "fastify";
 import { join } from "path";
+import registerSchemas from "./utilities/registerSchemas";
 import registerPlugins from "./utilities/registerPlugins";
 import registerRoutes from "./utilities/registerRoutes";
-import registerSchemas from "./utilities/registerSchemas";
+import registerHooks from "./utilities/registerHooks";
 
 // load config
 dotenv.config();
@@ -17,13 +18,16 @@ async function main() {
     // register aliases
     await registerAliases();
 
+    // register hooks
+    await registerHooks(app);
+
     // register schemas
     await registerSchemas(join(__dirname, "modules"), app);
 
-    // // register route
+    // register route
     await registerRoutes(join(__dirname, "modules"), app);
 
-    // // register plugins/decorations
+    // register plugins/decorations
     await registerPlugins(join(__dirname, "plugins"), app);
 
     // listen port
@@ -44,7 +48,7 @@ async function registerAliases() {
   const moduleAlias = require("module-alias");
 
   moduleAlias.addAliases({
-    "@root": __dirname,
+    "@root": `${__dirname}`,
     "@databases": `${__dirname}/databases`,
     "@modules": `${__dirname}/modules`,
     "@utilities": `${__dirname}/utilities`,

@@ -48,7 +48,9 @@ class UserService {
       name: user.name,
       role_id: user.role_id,
       role_name: user.role?.name,
+      actor: user.actor,
       is_active: user.is_active,
+      public_id: user.public_id,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
@@ -69,7 +71,9 @@ class UserService {
       name: user.name,
       role_id: user.role_id,
       role_name: user.role?.name,
+      actor: user.actor,
       is_active: user.is_active,
+      public_id: user.public_id,
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
@@ -85,7 +89,7 @@ class UserService {
     // Buat data
     const createdData = await this.repository.createUser(
       input,
-      app.request.user.id
+      app.request.auth.user.id
     );
 
     return createdData;

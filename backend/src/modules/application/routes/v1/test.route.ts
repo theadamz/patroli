@@ -11,10 +11,20 @@ async function routes(server: FastifyInstance) {
   server.get(
     "/protected-route",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       reply.send({ check: "Protected Route" });
+    }
+  );
+
+  server.post(
+    "/protected-route",
+    {
+      preHandler: [server.joseAuth, server.csrfGuard],
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      return request.body;
     }
   );
 }

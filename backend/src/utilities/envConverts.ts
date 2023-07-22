@@ -8,5 +8,8 @@ export const envConvert = (value: string, type: "number" | "bool") => {
       let bool: boolean =
         value === "true" || value === "1" || value === "t" ? true : false;
       return bool;
+
+    default:
+      return value;
   }
 };

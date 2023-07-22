@@ -5,7 +5,7 @@ import {
   RoleUpdateRequestSchema,
 } from "@modules/application/schemas/role.schema";
 
-class RoleService {
+class RoleRepository {
   async getRoles(query: RoleQueryParametersSchema) {
     // search
     const search = query.search === undefined ? "" : query.search;
@@ -189,6 +189,7 @@ class RoleService {
       },
     });
 
+    // @ts-ignore
     return rows.map(({ role, menu, ...row }) => {
       const result = {
         ...row,
@@ -205,4 +206,4 @@ class RoleService {
   }
 }
 
-export default RoleService;
+export default RoleRepository;

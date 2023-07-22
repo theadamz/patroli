@@ -6,11 +6,11 @@ import {
   RoleUpdateRequestSchema,
   RoleAccessParamsParametersSchema,
 } from "@modules/application/schemas/role.schema";
-import RoleService from "@modules/application/services/role.service ";
 import { ObjectId } from "bson";
+import RoleRepository from "@modules/application/repositories/role.repository";
 
-// Service
-const service = new RoleService();
+// repository
+const repository = new RoleRepository();
 
 export async function getRolesHandler(
   request: FastifyRequest<{ Querystring: RoleQueryParametersSchema }>,
@@ -21,7 +21,7 @@ export async function getRolesHandler(
     const query = request.query;
 
     // get data
-    const response = await service.getRoles(query);
+    const response = await repository.getRoles(query);
 
     // if total data <= 0
     if (response.total <= 0) {
@@ -51,9 +51,9 @@ export async function getRoleHandler(
 
     // check if object id is valid
     if (ObjectId.isValid(params.id)) {
-      response = await service.getRoleById(params.id); // get data
+      response = await repository.getRoleById(params.id); // get data
     } else {
-      response = await service.getRoleByCode(params.id); // get data
+      response = await repository.getRoleByCode(params.id); // get data
     }
 
     // if data not found
@@ -80,13 +80,13 @@ export async function createRoleHandler(
     const input = request.body;
 
     // check if duplicate
-    const role = await service.getRoleByCode(input.code);
+    const role = await repository.getRoleByCode(input.code);
     if (role !== null && role.code === input.code) {
       return reply.conflict("Kode sudah digunakan");
     }
 
     // save
-    const response = await service.createRole(input, request.user.id);
+    const response = await repository.createRole(input, request.auth.user.id);
 
     // Send response
     return reply.code(201).send(response);
@@ -114,22 +114,22 @@ export async function updateRoleHandler(
     const input = request.body;
 
     // check if data is exist
-    const getData = await service.getRoleById(params.id);
+    const getData = await repository.getRoleById(params.id);
     if (getData === null) {
       return reply.notFound("Data tidak ditemukan");
     }
 
     // check if duplicate
-    const role = await service.getRoleByCode(input.code);
+    const role = await repository.getRoleByCode(input.code);
     if (role !== null && role.code === input.code && role.id !== params.id) {
       return reply.conflict("Kode sudah digunakan");
     }
 
     // save
-    const response = await service.updateRole(
+    const response = await repository.updateRole(
       params.id,
       input,
-      request.user.id
+      request.auth.user.id
     );
 
     // send response
@@ -152,13 +152,13 @@ export async function deleteRoleHandler(
     const params = request.params;
 
     // check if data is exist
-    const getData = await service.getRoleById(params.id);
+    const getData = await repository.getRoleById(params.id);
     if (getData === null) {
       return reply.notFound("Data tidak ditemukan");
     }
 
     // delete
-    const response = await service.deleteRole(params.id);
+    const response = await repository.deleteRole(params.id);
 
     // send response
     return reply.code(200).send(response);
@@ -179,8 +179,13 @@ export async function getRoleAccesssHandler(
     // get params
     const params = request.params;
 
+    // check id
+    if (!ObjectId.isValid(params.role_id)) {
+      return reply.code(400).send({ message: "Invalid parameter" });
+    }
+
     // get data
-    const response = await service.getRoleAccesss(params.role_id);
+    const response = await repository.getRoleAccesss(params.role_id);
 
     // if total data <= 0
     if (response === null) {

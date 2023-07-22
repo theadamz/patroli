@@ -14,7 +14,7 @@ export default async function userRoutes(
   server.get(
     "/",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth],
       schema: {
         querystring: $ref("userQueryParametersSchema"),
         response: {
@@ -28,7 +28,7 @@ export default async function userRoutes(
   server.get(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth],
       schema: {
         params: $ref("userParamsRequestSchema"),
         response: {
@@ -42,7 +42,7 @@ export default async function userRoutes(
   server.post(
     "/",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         body: $ref("userCreateRequestSchema"),
         response: {
@@ -56,7 +56,7 @@ export default async function userRoutes(
   server.put(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         params: $ref("userParamsRequestSchema"),
         body: $ref("userUpdateRequestSchema"),
@@ -71,7 +71,7 @@ export default async function userRoutes(
   server.delete(
     "/:id",
     {
-      preHandler: [server.JWTAuthenticate],
+      preHandler: [server.joseAuth, server.csrfGuard],
       schema: {
         params: $ref("userParamsRequestSchema"),
         response: {

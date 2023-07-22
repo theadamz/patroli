@@ -132,7 +132,7 @@ export async function updateUserHandler(
     const response = await service.updateUser(
       parameters.id,
       input,
-      request.user.id
+      request.auth.user.id
     );
 
     // Send response

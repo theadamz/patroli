@@ -6,6 +6,7 @@ import {
   UserUpdateRequestSchema,
 } from "@modules/application/schemas/user.schema";
 import { hashPassword } from "@utilities/hashPassword";
+import { ObjectId } from "bson";
 
 class UserRepository {
   async getUsers(query: UserQueryParametersSchema) {
@@ -50,7 +51,9 @@ class UserRepository {
               name: true,
             },
           },
+          actor: true,
           is_active: true,
+          public_id: true,
           created_by: true,
           created_at: true,
           updated_by: true,
@@ -88,7 +91,9 @@ class UserRepository {
         role: {
           select: { name: true },
         },
+        actor: true,
         is_active: true,
+        public_id: true,
         created_at: true,
         updated_at: true,
       },
@@ -111,7 +116,9 @@ class UserRepository {
         role: {
           select: { name: true },
         },
+        actor: true,
         is_active: true,
+        public_id: true,
         created_at: true,
         updated_at: true,
       },
@@ -130,7 +137,9 @@ class UserRepository {
           password: password,
           name: input.name,
           role_id: input.role_id,
+          actor: input.actor,
           is_active: true,
+          public_id: new ObjectId().toString(),
           created_by: user_id,
           created_at: new Date(),
         },
@@ -149,7 +158,9 @@ class UserRepository {
                   select: { name: true },
                 })
               )?.name,
+              actor: user.actor,
               is_active: user.is_active,
+              public_id: user.public_id,
               created_at: user.created_at,
             } as any);
       });
@@ -166,6 +177,7 @@ class UserRepository {
       email: input.email,
       name: input.name,
       role_id: input.role_id,
+      actor: input.actor,
       is_active: input.is_active,
       updated_by: user_id,
       updated_at: new Date(),
@@ -202,7 +214,9 @@ class UserRepository {
           role: {
             select: { name: true },
           },
+          actor: true,
           is_active: true,
+          public_id: true,
           updated_at: true,
         },
       })
@@ -221,7 +235,9 @@ class UserRepository {
                   select: { name: true },
                 })
               )?.name,
+              actor: user.actor,
               is_active: user.is_active,
+              public_id: user.public_id,
               updated_at: user.updated_at,
             } as any);
       });
@@ -240,6 +256,7 @@ class UserRepository {
         email: true,
         name: true,
         role_id: true,
+        actor: true,
         is_active: true,
         created_at: true,
         updated_at: true,

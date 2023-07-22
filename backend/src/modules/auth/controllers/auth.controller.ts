@@ -1,12 +1,19 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import AuthService from "@modules/auth/services/auth.service";
-import { AuthLoginRequestSchema } from "@modules/auth/schemas/auth.schema";
+import {
+  AuthLoginRequestSchema,
+  AuthRefreshTokenParametersSchema,
+} from "@modules/auth/schemas/auth.schema";
 import UserService from "@modules/application/services/user.service";
-import { comparePassword } from "@utilities/hashPassword";
+import { verifyPassword } from "@utilities/hashPassword";
+import config from "@utilities/config";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "@utilities/jwtTokens";
+} from "@root/utilities/joseHelper";
+import { csrfGenerateToken } from "@root/utilities/csrf";
+import { app } from "@root/app";
+import { getUserInfoByPublicId } from "@utilities/AppHelper";
 
 // Service
 const service = new AuthService();
@@ -28,40 +35,132 @@ export async function loginHandler(
       return reply.unauthorized("Email or password invalid");
     }
 
+    // if user not active
+    if (user.is_active === false) {
+      return reply.unauthorized("Email or password invalid");
+    }
+
     const passwordHash: string =
       user.password === undefined || user.password === null
         ? ""
         : user.password;
 
     // check password
-    const isGoodPassword = await comparePassword(input.password, passwordHash);
-    if (!isGoodPassword) {
+    const correctPassword = await verifyPassword(input.password, passwordHash);
+    if (!correctPassword) {
       return reply.unauthorized("Email or password invalid");
     }
 
     // create log
-    const log = service.createUserLog(user.id, "web");
+    await service.createUserLog(user.id, "web");
+
+    // hapus semua token
+    await service.clearUserToken(user.id);
 
     // generate refresh token
-    const refreshToken = await generateRefreshToken({ id: user.id });
+    const refreshToken = await generateRefreshToken({
+      id: user.public_id,
+    });
 
-    // generate access token
-    const accessToken = await generateAccessToken({ id: user.id });
+    // register request
+    app.request.auth = {
+      id: user.public_id,
+      user: await getUserInfoByPublicId(user.public_id),
+      payload: null,
+      token: refreshToken,
+    };
 
     // prepare response
-    const response = {
+    let response = {
       email: user.email,
       name: user.name,
       role_name: user.role_name,
-      token: accessToken,
+      token: {
+        refresh: refreshToken,
+      },
+      login_time: new Date(),
     };
 
-    return reply
-      .setCookie("_refreshToken", refreshToken, {
-        httpOnly: true,
-      })
-      .code(200)
-      .send(response);
+    let replyToClient = reply.setCookie(
+      config.TOKEN_REFRESH_NAME,
+      refreshToken
+    );
+
+    // if use access token
+    if (config.TOKEN_ACCESS === true) {
+      // generate access token
+      const accessToken = await generateAccessToken({
+        id: user.public_id,
+      });
+
+      response = {
+        ...response,
+        ...{ token: { ...response.token, ...{ access: accessToken } } },
+      };
+
+      replyToClient.setCookie(config.TOKEN_ACCESS_NAME, accessToken);
+    }
+
+    // if use csrf
+    if (config.TOKEN_CSRF === true) {
+      // generate csrf token
+      const csrfToken = await csrfGenerateToken();
+
+      response = {
+        ...response,
+        ...{
+          token: { ...response.token, ...{ csrf: csrfToken } },
+        },
+      };
+
+      replyToClient.setCookie(config.TOKEN_CSRF_NAME, csrfToken);
+    }
+
+    return replyToClient.code(200).send(response);
+  } catch (e: any) {
+    // Console log
+    console.log(e);
+
+    // Send response
+    return reply.code(500).send(e);
+  }
+}
+
+export async function refreshTokenHandler(
+  request: FastifyRequest<{
+    Params: AuthRefreshTokenParametersSchema;
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    // get input
+    const params = request.params;
+
+    // token jwt access
+    if (params.type === "access" && config.TOKEN_ACCESS === true) {
+      // generate access token
+      const accessToken = await generateAccessToken({
+        id: request.auth.id,
+      });
+
+      // set cookie
+      reply.setCookie(config.TOKEN_ACCESS_NAME, accessToken);
+
+      return reply.code(201).send({ token: accessToken });
+    }
+
+    // token csrf
+    if (params.type === "csrf" && config.TOKEN_CSRF === true) {
+      // generate csrf token
+      const csrfToken = await csrfGenerateToken();
+
+      // set cookie
+      reply.setCookie(config.TOKEN_CSRF_NAME, csrfToken);
+
+      return reply.code(201).send({ token: csrfToken });
+    }
+
+    return reply.code(200).send({ message: "No token generated" });
   } catch (e: any) {
     // Console log
     console.log(e);

@@ -8,7 +8,7 @@ export const hashPassword = async (
   return hashPassword;
 };
 
-export const comparePassword = async (
+export const verifyPassword = async (
   password: string,
   hash: string
 ): Promise<boolean> => {
