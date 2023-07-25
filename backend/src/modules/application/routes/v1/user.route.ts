@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import {
   createUserHandler,
-  deleteUserHandler,
   getUserByIdOrEmailHandler,
   getUsersHandler,
   updateUserHandler,
@@ -68,7 +67,7 @@ export default async function userRoutes(
     updateUserHandler
   );
 
-  server.delete(
+  /* server.delete(
     "/:id",
     {
       preHandler: [server.joseAuth, server.csrfGuard],
@@ -80,7 +79,7 @@ export default async function userRoutes(
       },
     },
     deleteUserHandler
-  );
+  ); */
 }
 
 export const options: FastifyPluginOptions = {

@@ -16,6 +16,7 @@ class UserRepository {
     // where parameters
     const whereParameters = {
       OR: [{ email: { contains: search } }, { name: { contains: search } }],
+      AND: [{ is_active: query.is_active }],
     };
 
     // order by
@@ -54,9 +55,7 @@ class UserRepository {
           actor: true,
           is_active: true,
           public_id: true,
-          created_by: true,
           created_at: true,
-          updated_by: true,
           updated_at: true,
         },
         where: whereParameters,
@@ -78,13 +77,14 @@ class UserRepository {
     };
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: string, usePassword: boolean = false) {
     const user = await prisma.user.findUnique({
       where: {
         id,
       },
       select: {
         id: true,
+        password: usePassword,
         email: true,
         name: true,
         role_id: true,
@@ -260,6 +260,59 @@ class UserRepository {
         is_active: true,
         created_at: true,
         updated_at: true,
+      },
+    });
+
+    return user;
+  }
+
+  async getUserProfileById(id: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        email: true,
+        name: true,
+        actor: true,
+      },
+    });
+
+    const officer = await prisma.officer.findFirst({
+      where: {
+        user_id: id,
+      },
+      select: {
+        code: true,
+        phone_no: true,
+        photo_file: true,
+      },
+    });
+
+    const citizen = await prisma.citizen.findFirst({
+      where: {
+        user_id: id,
+      },
+      select: {
+        id_card_number: true,
+        phone_no: true,
+        photo_file: true,
+      },
+    });
+
+    return { user, officer, citizen };
+  }
+
+  async updatePassword(newPassword: string, user_id: string) {
+    // hash password
+    const password: string = await hashPassword(newPassword);
+
+    // update
+    const user = await prisma.user.update({
+      where: { id: user_id },
+      data: {
+        password: password,
+        last_change_password_at: new Date(),
       },
     });
 

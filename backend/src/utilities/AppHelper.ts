@@ -7,7 +7,7 @@ export const getUserInfoByPublicId = async (
 ): Promise<UserInfo> => {
   const user = await prisma.user.findUnique({
     where: {
-      public_id,
+      public_id: public_id,
     },
     include: {
       role: {

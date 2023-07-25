@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import {
   createRoleHandler,
-  deleteRoleHandler,
   getRoleAccesssHandler,
   getRoleHandler,
   getRolesHandler,
@@ -69,7 +68,7 @@ export default async function userRoutes(
     updateRoleHandler
   );
 
-  server.delete(
+  /* server.delete(
     "/:id",
     {
       preHandler: [server.joseAuth, server.csrfGuard],
@@ -81,7 +80,7 @@ export default async function userRoutes(
       },
     },
     deleteRoleHandler
-  );
+  ); */
 
   server.get(
     "/accesses/:role_id",

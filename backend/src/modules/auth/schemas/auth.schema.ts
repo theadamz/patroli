@@ -41,6 +41,11 @@ const authLogOutRequestSchema = z.object({
   token: z.string(),
 });
 
+const updatePasswordRequestSchema = z.object({
+  old_password: z.string().min(6),
+  new_password: z.string().min(6),
+});
+
 // Objects response
 const authLoginResponseSchema = z.object({
   email: z.string().email(),
@@ -67,6 +72,18 @@ const authLogoutResponseSchema = z.object({
   logout_time: z.date(),
 });
 
+const profileResponseSchema = z.object({
+  identity_no: z.string().nullish(),
+  name: z.string(),
+  phone_no: z.string().nullish(),
+  email: z.string().email(),
+  photo_file: z.string().nullish(),
+});
+
+const responseSchema = z.object({
+  message: z.string(),
+});
+
 // Types / enums
 export type PlatformEnum = z.infer<typeof platformEnum>;
 export type UserInfo = z.infer<typeof userInfo>;
@@ -81,6 +98,9 @@ export type AuthRefreshTokenResponseNoGeneratedSchema = z.infer<
   typeof authRefreshTokenResponseNoGeneratedSchema
 >;
 export type AuthLogOutRequestSchema = z.infer<typeof authLogOutRequestSchema>;
+export type UpdatePasswordRequestSchema = z.infer<
+  typeof updatePasswordRequestSchema
+>;
 
 // Types response
 export type AuthLoginResponseSchema = z.infer<typeof authLoginResponseSchema>;
@@ -88,6 +108,8 @@ export type AuthRefreshTokenResponseSchema = z.infer<
   typeof authRefreshTokenResponseSchema
 >;
 export type AuthLogoutResponseSchema = z.infer<typeof authLogoutResponseSchema>;
+export type ProfileResponseSchema = z.infer<typeof profileResponseSchema>;
+export type ResponseSchema = z.infer<typeof responseSchema>;
 
 // List schemas untuk digunakan pada routes (body, query parameter, response, dll)
 export const { schemas: authSchemas, $ref } = buildJsonSchemas(
@@ -99,6 +121,9 @@ export const { schemas: authSchemas, $ref } = buildJsonSchemas(
     authRefreshTokenResponseSchema,
     authLogOutRequestSchema,
     authLogoutResponseSchema,
+    profileResponseSchema,
+    updatePasswordRequestSchema,
+    responseSchema,
   },
   { $id: "authSchemas" }
 );

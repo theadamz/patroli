@@ -5,7 +5,9 @@ import {
 } from "@modules/auth/schemas/auth.schema";
 import {
   loginHandler,
+  profileHandler,
   refreshTokenHandler,
+  updatePasswordHandler,
 } from "@modules/auth/controllers/auth.controller";
 import config from "@utilities/config";
 import { verifyToken } from "@root/utilities/joseHelper";
@@ -92,5 +94,32 @@ export default async function authRoutes(server: FastifyInstance) {
         .code(200)
         .send({ message: "Logout success", logout_time: new Date() });
     }
+  );
+
+  server.get(
+    "/profile",
+    {
+      preHandler: [server.joseAuth],
+      schema: {
+        response: {
+          200: $ref("profileResponseSchema"),
+        },
+      },
+    },
+    profileHandler
+  );
+
+  server.put(
+    "/change-password",
+    {
+      preHandler: [server.joseAuth, server.csrfGuard],
+      schema: {
+        body: $ref("updatePasswordRequestSchema"),
+        response: {
+          200: $ref("responseSchema"),
+        },
+      },
+    },
+    updatePasswordHandler
   );
 }

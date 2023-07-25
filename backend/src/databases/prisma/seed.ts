@@ -3,6 +3,9 @@ import RoleSeed from "../seeders/role.seed";
 import UserSeed from "../seeders/user.seed";
 import MenuSeed from "../seeders/menu.seed";
 import RoleMenuSeed from "../seeders/roleMenu.seed";
+import OfficerSeed from "../seeders/officer.seed";
+import CitizenSeed from "../seeders/citizen.seed";
+import CategorySeed from "../seeders/category.seed";
 
 const truncateFirst = true;
 
@@ -14,6 +17,9 @@ async function main() {
   await UserSeed();
   await MenuSeed();
   await RoleMenuSeed();
+  await OfficerSeed();
+  await CitizenSeed();
+  await CategorySeed();
 }
 
 async function clearDataCollections() {

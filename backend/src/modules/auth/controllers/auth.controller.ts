@@ -3,6 +3,7 @@ import AuthService from "@modules/auth/services/auth.service";
 import {
   AuthLoginRequestSchema,
   AuthRefreshTokenParametersSchema,
+  UpdatePasswordRequestSchema,
 } from "@modules/auth/schemas/auth.schema";
 import UserService from "@modules/application/services/user.service";
 import { verifyPassword } from "@utilities/hashPassword";
@@ -161,6 +162,59 @@ export async function refreshTokenHandler(
     }
 
     return reply.code(200).send({ message: "No token generated" });
+  } catch (e: any) {
+    // Console log
+    console.log(e);
+
+    // Send response
+    return reply.code(500).send(e);
+  }
+}
+
+export async function profileHandler(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  try {
+    const profile = await userService.getUserProfileById(request.auth.user.id);
+
+    return reply.code(200).send(profile);
+  } catch (e: any) {
+    // Console log
+    console.log(e);
+
+    // Send response
+    return reply.code(500).send(e);
+  }
+}
+
+export async function updatePasswordHandler(
+  request: FastifyRequest<{ Body: UpdatePasswordRequestSchema }>,
+  reply: FastifyReply
+) {
+  try {
+    // get input
+    const input = request.body;
+
+    // ambil user
+    const user = await userService.getUserById(request.auth.user.id, true);
+    if (user === null) {
+      return reply.code(404).send({ message: "User not found" });
+    }
+
+    // compare password
+    const isOldPassOk = await verifyPassword(
+      input.old_password,
+      user.password === undefined ? "" : user.password
+    );
+    if (!isOldPassOk) {
+      return reply.code(400).send({ message: "Please check your password" });
+    }
+
+    // update password user
+    await userService.updatePassword(input.new_password, request.auth.user.id);
+
+    return reply.code(200).send({ message: "Password successfuly updated" });
   } catch (e: any) {
     // Console log
     console.log(e);

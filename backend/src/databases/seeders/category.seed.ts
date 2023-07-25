@@ -11,13 +11,12 @@ export default async function main() {
 async function run() {
   console.log("Insert data");
 
-  const data = await prisma.role.createMany({
+  const data = await prisma.complain_category.createMany({
     data: [
-      { code: "dev", name: "Developer" },
-      { code: "administrator", name: "Administrator" },
-      { code: "operator", name: "Operator" },
-      { code: "officer", name: "Officer" },
-      { code: "citizen", name: "Citizen" },
+      { name: "Gangguan", is_visible: true },
+      { name: "Pencurian", is_visible: true },
+      { name: "Daerah Rawan", is_visible: true },
+      { name: "Lainnya", is_visible: true },
     ],
   });
 

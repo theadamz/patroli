@@ -30,14 +30,14 @@ class UserService {
     };
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: string, usePassword: boolean = false) {
     // if id is not ObjectId
     if (!ObjectId.isValid(id)) {
       return null;
     }
 
     // get data
-    const user = await this.repository.getUserById(id);
+    const user = await this.repository.getUserById(id, usePassword);
 
     // if data not found
     if (user === null) return null;
@@ -53,6 +53,7 @@ class UserService {
       public_id: user.public_id,
       created_at: user.created_at,
       updated_at: user.updated_at,
+      ...(usePassword ? { password: user.password } : null),
     };
   }
 
@@ -86,7 +87,7 @@ class UserService {
   }
 
   async createUser(input: UserCreateRequestSchema) {
-    // Buat data
+    // create data
     const createdData = await this.repository.createUser(
       input,
       app.request.auth.user.id
@@ -114,6 +115,58 @@ class UserService {
     const deleteData = await this.repository.deleteUser(id);
 
     return deleteData;
+  }
+
+  async getUserProfileById(id: string) {
+    // if id is not ObjectId
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
+
+    // get data
+    const profile = await this.repository.getUserProfileById(id);
+
+    // if data not found
+    if (profile === null) return null;
+
+    let response = null;
+
+    response = {
+      identity_no:
+        profile.user?.actor === "officer"
+          ? profile.officer?.code
+          : profile.citizen?.id_card_number,
+      name: profile.user?.name,
+    };
+
+    if (profile.user?.actor === "officer") {
+      response = {
+        ...response,
+        ...{
+          phone_no: profile.officer?.phone_no,
+          email: profile.user?.email,
+          photo_file: profile.officer?.photo_file,
+        },
+      };
+    } else {
+      response = {
+        ...response,
+        ...{
+          phone_no: profile.citizen?.phone_no,
+          email: profile.user?.email,
+          photo_file: profile.citizen?.photo_file,
+        },
+      };
+    }
+
+    return response;
+  }
+
+  async updatePassword(newPassword: string, user_id: string) {
+    // Update data
+    const update = await this.repository.updatePassword(newPassword, user_id);
+
+    return update;
   }
 }
 

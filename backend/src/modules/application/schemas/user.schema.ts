@@ -31,6 +31,7 @@ const userQueryParametersSchema = z.object({
     .optional(),
   sort_direction: z.enum(["asc", "desc"]).nullable().default("asc").optional(),
   search: z.string().optional(),
+  is_active: z.boolean().optional(),
 });
 
 const userParamsRequestSchema = z.object({

@@ -83,21 +83,22 @@ model role_menu {
 }
 
 model user {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  public_id  String    @unique @db.ObjectId
-  email      String    @unique
-  password   String
-  name       String
-  role_id    String?   @db.ObjectId
-  role       role?     @relation(fields: [role_id], references: [id])
-  actor      actor     @default(citizen)
-  is_active  Boolean   @default(true)
-  created_by String?   @db.ObjectId
-  updated_by String?   @db.ObjectId
-  created_at DateTime? @default(now())
-  updated_at DateTime?
-  officer    officer[]
-  citizen    citizen[]
+  id                      String    @id @default(auto()) @map("_id") @db.ObjectId
+  public_id               String    @unique @db.ObjectId
+  email                   String    @unique
+  password                String
+  name                    String
+  role_id                 String?   @db.ObjectId
+  role                    role?     @relation(fields: [role_id], references: [id])
+  actor                   actor     @default(citizen)
+  is_active               Boolean   @default(true)
+  created_by              String?   @db.ObjectId
+  updated_by              String?   @db.ObjectId
+  created_at              DateTime? @default(now())
+  updated_at              DateTime?
+  last_change_password_at DateTime?
+  officer                 officer[]
+  citizen                 citizen[]
 
   @@map("users")
 }
@@ -145,7 +146,6 @@ model citizen {
   user             user       @relation(fields: [user_id], references: [id])
   id_card_number   String     @unique // nomor KTP
   name             String
-  nick_name        String
   phone_no         String     @unique
   email            String     @unique
   photo_file       String?
@@ -158,6 +158,7 @@ model citizen {
 model complain_category {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   name       String
+  is_visible Boolean    @default(true)
   created_by String?    @db.ObjectId
   updated_by String?    @db.ObjectId
   created_at DateTime?  @default(now())
