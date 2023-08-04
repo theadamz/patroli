@@ -5,6 +5,10 @@ import registerSchemas from "./utilities/registerSchemas";
 import registerPlugins from "./utilities/registerPlugins";
 import registerRoutes from "./utilities/registerRoutes";
 import registerHooks from "./utilities/registerHooks";
+import {
+  createDecorates,
+  createMainDecorates,
+} from "./utilities/createDecorates";
 
 // load config
 dotenv.config();
@@ -24,11 +28,17 @@ async function main() {
     // register schemas
     await registerSchemas(join(__dirname, "modules"), app);
 
-    // register route
-    await registerRoutes(join(__dirname, "modules"), app);
+    // initialize first decorations
+    await createMainDecorates(join(__dirname, "decorates"), app);
 
-    // register plugins/decorations
+    // register plugins
     await registerPlugins(join(__dirname, "plugins"), app);
+
+    // register route
+    await registerRoutes(join(__dirname, "routers"), app);
+
+    // initialize last decorate
+    await createDecorates(join(__dirname, "decorates"), app);
 
     // listen port
     await app.listen({ port: process.env.PORT, host: process.env.HOST });
@@ -48,10 +58,11 @@ async function registerAliases() {
   const moduleAlias = require("module-alias");
 
   moduleAlias.addAliases({
-    "@root": `${__dirname}`,
     "@databases": `${__dirname}/databases`,
     "@modules": `${__dirname}/modules`,
     "@utilities": `${__dirname}/utilities`,
+    "@contents": `${__dirname}/contents`,
+    "@root": `${__dirname}`,
   });
 }
 

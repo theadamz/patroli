@@ -7,13 +7,22 @@ import {
 } from "@root/modules/complaint/controllers/category.controller";
 import { $ref } from "@root/modules/complaint/schemas/category.schema";
 
+const menu_code = "complaint-category";
+
+export const options: FastifyPluginOptions = {
+  prefix: "v1/complaints/categories",
+};
+
 export default async function categoryRoutes(
   server: FastifyInstance
 ): Promise<void> {
   server.get(
     "/",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({ menuCode: menu_code }),
+      ],
       schema: {
         querystring: $ref("categoryQueryParametersSchema"),
         response: {
@@ -27,7 +36,12 @@ export default async function categoryRoutes(
   server.get(
     "/:id",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         params: $ref("categoryParamsRequestSchema"),
         response: {
@@ -41,7 +55,13 @@ export default async function categoryRoutes(
   server.post(
     "/",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         body: $ref("categoryCreateRequestSchema"),
         response: {
@@ -55,7 +75,13 @@ export default async function categoryRoutes(
   server.put(
     "/:id",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         params: $ref("categoryParamsRequestSchema"),
         body: $ref("categoryUpdateRequestSchema"),
@@ -67,7 +93,3 @@ export default async function categoryRoutes(
     updateCategoryHandler
   );
 }
-
-export const options: FastifyPluginOptions = {
-  prefix: "v1/complaints/categories",
-};

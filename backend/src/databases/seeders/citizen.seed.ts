@@ -40,7 +40,8 @@ async function run() {
   // Ambil role id
   const role = await prisma.role.findUnique({ where: { code: "citizen" } });
 
-  data.forEach(async (item) => {
+  // Loop data
+  for (const item of data) {
     const transaction = await prisma.$transaction(async (tx) => {
       // create user
       const user = await tx.user.create({
@@ -72,5 +73,5 @@ async function run() {
     });
 
     console.log(transaction);
-  });
+  }
 }

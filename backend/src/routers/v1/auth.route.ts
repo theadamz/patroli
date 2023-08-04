@@ -1,4 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import {
+  FastifyInstance,
+  FastifyPluginOptions,
+  FastifyReply,
+  FastifyRequest,
+} from "fastify";
 import {
   $ref,
   AuthLogOutRequestSchema,
@@ -10,7 +15,11 @@ import {
   updatePasswordHandler,
 } from "@modules/auth/controllers/auth.controller";
 import config from "@utilities/config";
-import { verifyToken } from "@root/utilities/joseHelper";
+import { verifyToken } from "@root/utilities/joseJWTAuth";
+
+export const options: FastifyPluginOptions = {
+  prefix: "v1",
+};
 
 export default async function authRoutes(server: FastifyInstance) {
   server.post(
@@ -29,7 +38,7 @@ export default async function authRoutes(server: FastifyInstance) {
   server.get(
     "/refresh-token/:type",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [server.joseJWTAuth],
       schema: {
         params: $ref("authRefreshTokenParametersSchema"),
         response: {
@@ -44,7 +53,7 @@ export default async function authRoutes(server: FastifyInstance) {
   server.post(
     "/logout",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [server.joseJWTAuth, server.csrfGuard],
       schema: {
         body: $ref("authLogOutRequestSchema"),
         response: {
@@ -99,7 +108,7 @@ export default async function authRoutes(server: FastifyInstance) {
   server.get(
     "/profile",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [server.joseJWTAuth],
       schema: {
         response: {
           200: $ref("profileResponseSchema"),
@@ -112,7 +121,7 @@ export default async function authRoutes(server: FastifyInstance) {
   server.put(
     "/change-password",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [server.joseJWTAuth, server.csrfGuard],
       schema: {
         body: $ref("updatePasswordRequestSchema"),
         response: {

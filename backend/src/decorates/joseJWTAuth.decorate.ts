@@ -1,20 +1,18 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { verifyToken } from "@root/utilities/joseHelper";
+import { verifyToken } from "@root/utilities/joseJWTAuth";
 import config from "@utilities/config";
-import { getUserInfoByPublicId } from "@root/utilities/AppHelper";
+import { getUserInfoByPublicId } from "@root/utilities/appHelper";
 
 // declare
 declare module "fastify" {
   export interface FastifyInstance {
-    joseAuth: any;
+    joseJWTAuth: any;
   }
 }
 
-export const type = "decorate";
-
 export const main = async (fastify: FastifyInstance) => {
   fastify.decorate(
-    "joseAuth",
+    "joseJWTAuth",
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         // get token from cookie
@@ -27,7 +25,7 @@ export const main = async (fastify: FastifyInstance) => {
 
         // if token is empty
         if (refreshToken === "") {
-          return reply.code(400).send({ message: "token not found" });
+          return reply.code(401).send({ message: "token not found" });
         }
 
         // check refresh token
@@ -56,7 +54,7 @@ export const main = async (fastify: FastifyInstance) => {
 
           // if token is empty
           if (accessToken === "") {
-            return reply.code(400).send({ message: "access token not found" });
+            return reply.code(401).send({ message: "access token not found" });
           }
 
           // check access token
@@ -71,7 +69,7 @@ export const main = async (fastify: FastifyInstance) => {
           }
         }
 
-        // assign auth
+        // get auth information
         request.auth = {
           id: verifyRefreshToken.payload.id,
           user: await getUserInfoByPublicId(verifyRefreshToken.payload.id),

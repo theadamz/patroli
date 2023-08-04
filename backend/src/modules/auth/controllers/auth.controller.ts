@@ -11,10 +11,10 @@ import config from "@utilities/config";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "@root/utilities/joseHelper";
+} from "@root/utilities/joseJWTAuth";
 import { csrfGenerateToken } from "@root/utilities/csrf";
 import { app } from "@root/app";
-import { getUserInfoByPublicId } from "@utilities/AppHelper";
+import { getUserInfoByPublicId } from "@root/utilities/appHelper";
 
 // Service
 const service = new AuthService();

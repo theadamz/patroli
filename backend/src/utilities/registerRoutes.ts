@@ -34,7 +34,7 @@ export default async function registerRoutes(
       const route = require(join(path, file));
 
       // Register route
-      fastify.register(
+      await fastify.register(
         route.default,
         route.options === undefined ? {} : route.options
       );

@@ -23,9 +23,10 @@ async function run() {
   });
 
   // Loop roles
-  roles.forEach(async function (role: any) {
+  for (const role of roles) {
+    console.log(`Insert menu for role ${role.name}`);
     // Loop menus
-    menus.forEach(async function (menu: any) {
+    for (const menu of menus) {
       // Create role_menu
       await prisma.role_menu.create({
         data: {
@@ -36,33 +37,37 @@ async function run() {
           allow_delete: true,
         },
       }); // ./role_menu
-    }); // ./menus
-  }); // ./roles
+    } // ./menus
+  } // ./roles
 
   // Seed role menu for role operator
   const roleOperator = await prisma.role.findFirst({
     where: { code: "operator" },
   });
 
-  const appMenuId = (
-    await prisma.menu.findFirst({
-      where: { code: "app" },
-      select: { id: true },
-    })
-  )?.id;
+  const excludeMenus = await prisma.menu.findMany({
+    where: {
+      code: {
+        in: ["menu", "role", "rolemenu"],
+      },
+    },
+  });
+
+  const excludeMenuIds = excludeMenus.map((item) => item.id); // get id only
 
   const menuOperator = await prisma.menu.findMany({
     select: {
       id: true,
     },
     where: {
-      parent_menu_id: {
-        notIn: appMenuId,
+      id: {
+        notIn: excludeMenuIds,
       },
     },
   });
 
-  menuOperator.forEach(async function (menu: any) {
+  console.log(`Insert menu for role ${roleOperator?.name}`);
+  for (const menu of menuOperator) {
     // Create role_menu
     await prisma.role_menu.create({
       data: {
@@ -73,5 +78,5 @@ async function run() {
         allow_delete: true,
       },
     }); // ./role_menu
-  });
+  }
 }

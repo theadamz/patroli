@@ -16,8 +16,8 @@ async function run() {
       { code: "dev", name: "Developer" },
       { code: "administrator", name: "Administrator" },
       { code: "operator", name: "Operator" },
-      { code: "officer", name: "Officer" },
-      { code: "citizen", name: "Citizen" },
+      { code: "officer", name: "Petugas" },
+      { code: "citizen", name: "Warga" },
     ],
   });
 

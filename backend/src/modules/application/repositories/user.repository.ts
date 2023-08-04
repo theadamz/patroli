@@ -285,7 +285,7 @@ class UserRepository {
       select: {
         code: true,
         phone_no: true,
-        photo_file: true,
+        photo_filename_hash: true,
       },
     });
 

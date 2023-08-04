@@ -4,22 +4,29 @@ import UserSeed from "../seeders/user.seed";
 import MenuSeed from "../seeders/menu.seed";
 import RoleMenuSeed from "../seeders/roleMenu.seed";
 import OfficerSeed from "../seeders/officer.seed";
+import OfficerTeamSeed from "../seeders/officerTeam.seed";
 import CitizenSeed from "../seeders/citizen.seed";
 import CategorySeed from "../seeders/category.seed";
 
 const truncateFirst = true;
+const seeds = [
+  RoleSeed,
+  UserSeed,
+  MenuSeed,
+  RoleMenuSeed,
+  OfficerSeed,
+  OfficerTeamSeed,
+  CitizenSeed,
+  CategorySeed,
+];
 
 async function main() {
   if (truncateFirst) await clearDataCollections();
 
-  // Seed data
-  await RoleSeed();
-  await UserSeed();
-  await MenuSeed();
-  await RoleMenuSeed();
-  await OfficerSeed();
-  await CitizenSeed();
-  await CategorySeed();
+  // Loop seeds
+  for (const seed of seeds) {
+    await seed();
+  }
 }
 
 async function clearDataCollections() {

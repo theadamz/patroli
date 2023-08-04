@@ -8,13 +8,24 @@ import {
 } from "@modules/application/controllers/role.controller";
 import { $ref } from "@modules/application/schemas/role.schema";
 
-export default async function userRoutes(
+const menu_code = "role";
+
+export const options: FastifyPluginOptions = {
+  prefix: "v1/roles",
+};
+
+export default async function roleRoutes(
   server: FastifyInstance
 ): Promise<void> {
   server.get(
     "/",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         querystring: $ref("roleQueryParametersSchema"),
         response: {
@@ -28,7 +39,12 @@ export default async function userRoutes(
   server.get(
     "/:id",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         response: {
@@ -42,7 +58,13 @@ export default async function userRoutes(
   server.post(
     "/",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         body: $ref("roleCreateRequestSchema"),
         response: {
@@ -56,7 +78,13 @@ export default async function userRoutes(
   server.put(
     "/:id",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         body: $ref("roleUpdateRequestSchema"),
@@ -71,7 +99,12 @@ export default async function userRoutes(
   /* server.delete(
     "/:id",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth, server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         params: $ref("roleParamsRequestSchema"),
         response: {
@@ -85,7 +118,12 @@ export default async function userRoutes(
   server.get(
     "/accesses/:role_id",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         params: $ref("roleAccessParamsParametersSchema"),
         response: {
@@ -96,7 +134,3 @@ export default async function userRoutes(
     getRoleAccesssHandler
   );
 }
-
-export const options: FastifyPluginOptions = {
-  prefix: "v1/roles",
-};

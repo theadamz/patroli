@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import config from "./config";
-import { generateAccessToken } from "./joseHelper";
+import { generateAccessToken } from "./joseJWTAuth";
 import { UserInfo } from "../modules/auth/schemas/auth.schema";
 import { csrfGenerateToken } from "./csrf";
+import { MenuAccessType } from "@root/modules/application/schemas/menu.schema";
 
 // declare extends module fastify
 declare module "fastify" {
@@ -20,6 +21,8 @@ declare module "fastify" {
       payload: any;
       token: string;
     };
+    menu_code: string;
+    menu_permission: MenuAccessType;
   }
 }
 

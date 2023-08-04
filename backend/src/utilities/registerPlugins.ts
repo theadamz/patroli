@@ -40,9 +40,6 @@ export default async function registerPlugins(
           case "custom":
             await plugin.main(fastify); // run main function
             return; // continue
-          case "decorate":
-            await plugin.main(fastify); // run main function
-            return; // continue
         }
       }
 

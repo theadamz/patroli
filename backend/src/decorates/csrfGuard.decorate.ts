@@ -9,8 +9,6 @@ declare module "fastify" {
   }
 }
 
-export const type = "decorate";
-
 export const main = async (fastify: FastifyInstance) => {
   fastify.decorate(
     "csrfGuard",

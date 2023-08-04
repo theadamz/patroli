@@ -7,13 +7,24 @@ import {
 } from "@modules/application/controllers/user.controller";
 import { $ref } from "@modules/application/schemas/user.schema";
 
+const menu_code = "user";
+
+export const options: FastifyPluginOptions = {
+  prefix: "v1/users",
+};
+
 export default async function userRoutes(
   server: FastifyInstance
 ): Promise<void> {
   server.get(
     "/",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         querystring: $ref("userQueryParametersSchema"),
         response: {
@@ -27,7 +38,12 @@ export default async function userRoutes(
   server.get(
     "/:id",
     {
-      preHandler: [server.joseAuth],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+      ],
       schema: {
         params: $ref("userParamsRequestSchema"),
         response: {
@@ -41,7 +57,13 @@ export default async function userRoutes(
   server.post(
     "/",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         body: $ref("userCreateRequestSchema"),
         response: {
@@ -55,7 +77,13 @@ export default async function userRoutes(
   server.put(
     "/:id",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         params: $ref("userParamsRequestSchema"),
         body: $ref("userUpdateRequestSchema"),
@@ -70,7 +98,13 @@ export default async function userRoutes(
   /* server.delete(
     "/:id",
     {
-      preHandler: [server.joseAuth, server.csrfGuard],
+      preHandler: [
+        server.joseJWTAuth,
+        server.accessGuard({
+          menuCode: menu_code,
+        }),
+        server.csrfGuard,
+      ],
       schema: {
         params: $ref("userParamsRequestSchema"),
         response: {
@@ -81,7 +115,3 @@ export default async function userRoutes(
     deleteUserHandler
   ); */
 }
-
-export const options: FastifyPluginOptions = {
-  prefix: "v1/users",
-};

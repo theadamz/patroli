@@ -23,28 +23,23 @@ enum actor {
 }
 
 enum complain_status {
-  open
-  progress
-  done
+  menunggu
+  proses
+  selesai
 }
 
 model menu {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  parent_menu_id String      @db.ObjectId
-  code           String      @unique
-  name           String
-  description    String?
-  icon           String?     @default("point")
-  path           String?
-  sort           Int         @default(1)
-  is_active      Boolean     @default(true)
-  created_by     String?     @db.ObjectId
-  updated_by     String?     @db.ObjectId
-  created_at     DateTime?   @default(now())
-  updated_at     DateTime?
-  role_menu      role_menu[]
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  code        String      @unique
+  name        String
+  description String?
+  is_active   Boolean     @default(true)
+  created_by  String?     @db.ObjectId
+  updated_by  String?     @db.ObjectId
+  created_at  DateTime?   @default(now())
+  updated_at  DateTime?
+  role_menu   role_menu[]
 
-  @@index([parent_menu_id])
   @@map("menus")
 }
 
@@ -125,19 +120,40 @@ model user_token {
 }
 
 model officer {
-  id               String     @id @default(auto()) @map("_id") @db.ObjectId
-  user_id          String     @db.ObjectId
-  user             user       @relation(fields: [user_id], references: [id])
-  code             String     @unique
-  name             String
-  phone_no         String     @unique
-  email            String     @unique
-  photo_file       String?
-  rating           Float      @default(0)
-  last_coordinates Float[]
-  complain         complain[]
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  user_id             String     @db.ObjectId
+  user                user       @relation(fields: [user_id], references: [id])
+  code                String     @unique
+  name                String
+  phone_no            String     @unique
+  email               String     @unique
+  photo_filename      String?
+  photo_filename_hash String?
+  rating              Float      @default(0)
+  last_coordinates    Float[]    @default([0, 0])
+  is_active           Boolean    @default(true)
+  created_by          String?    @db.ObjectId
+  updated_by          String?    @db.ObjectId
+  created_at          DateTime?  @default(now())
+  updated_at          DateTime?
+  complain            complain[]
 
   @@map("officers")
+}
+
+model officer_team {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  code              String    @unique
+  name              String
+  is_active         Boolean   @default(true)
+  leader_officer_id String    @db.ObjectId
+  officer_ids       String[]  @db.ObjectId
+  created_by        String?   @db.ObjectId
+  updated_by        String?   @db.ObjectId
+  created_at        DateTime? @default(now())
+  updated_at        DateTime?
+
+  @@map("officers_teams")
 }
 
 model citizen {
@@ -149,7 +165,9 @@ model citizen {
   phone_no         String     @unique
   email            String     @unique
   photo_file       String?
-  last_coordinates Float[]
+  photo_file_name  String?
+  last_coordinates Float[]    @default([0, 0])
+  is_active        Boolean    @default(true)
   complain         complain[]
 
   @@map("citizens")
@@ -181,7 +199,7 @@ model complain {
   description          String
   video_file           String?
   picture_files        String[]
-  status               complain_status   @default(open)
+  status               complain_status   @default(menunggu)
   rating               Float             @default(0)
   logs                 Json
   coordinates          Float[]

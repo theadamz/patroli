@@ -145,7 +145,7 @@ class UserService {
         ...{
           phone_no: profile.officer?.phone_no,
           email: profile.user?.email,
-          photo_file: profile.officer?.photo_file,
+          photo_file: profile.officer?.photo_filename_hash,
         },
       };
     } else {
