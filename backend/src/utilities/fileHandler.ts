@@ -3,6 +3,7 @@ import util from "util";
 import { Readable, pipeline } from "stream";
 import { ObjectId } from "bson";
 import { parse } from "path";
+import config from "./config";
 
 type UploadType = {
   filename: string;
@@ -13,45 +14,92 @@ type UploadType = {
 };
 
 type FileResponse = {
-  result: boolean;
+  result:
+    | "OK"
+    | "FILE_UNDEFINED"
+    | "FILE_DATA_UNDEFINED"
+    | "FILE_NOT_FOUND"
+    | "FILE_EXT_NOT_ALLOWED"
+    | "FILE_MIME_TYPE_NOT_ALLOWED"
+    | "FILE_SIZE_OVER_LIMIT"
+    | "FILE_UPLOAD_ERROR";
   error?: any;
   data?: UploadType;
+};
+
+type AllowedFileTypes = {
+  jpeg: string;
+  jpg: string;
+  png: string;
+  pdf: string;
+  xlsx: string;
+  xls: string;
 };
 
 export const uploadSingleFile = async (
   files: any,
   pathToSave: string | null = null,
-  allowedFileExts: string[]
+  allowedFileExts: Array<keyof AllowedFileTypes>
 ): Promise<FileResponse> => {
   try {
     // check if files not sent
     if (files === undefined || files.length <= 0) {
       return {
-        result: false,
+        result: "FILE_UNDEFINED",
         error: "File undefined",
       };
     }
 
     // get first file
     const data = files[0];
+    console.log(data);
+
+    // if data.data undefined
+    if (data.data === undefined) {
+      return {
+        result: "FILE_DATA_UNDEFINED",
+        error: "File data not acceptable, please check your file ext or size",
+      };
+    }
 
     // if file send but noting attached
     if (data.filename === "") {
       return {
-        result: false,
+        result: "FILE_NOT_FOUND",
         error: "File not found",
       };
     }
 
     // get file extension
     const ext = parse(data.filename).ext;
-    console.log("ext", ext);
+    const extOnly = ext.replace(".", "");
 
-    // check if file are allowed
-    if (!allowedFileExts.includes(ext.replace(".", ""))) {
+    if (!allowedFileExts.includes(extOnly as keyof AllowedFileTypes)) {
       return {
-        result: false,
+        result: "FILE_EXT_NOT_ALLOWED",
         error: `File extension not allowed`,
+      };
+    }
+
+    // check mime type
+    if (!config.FILE_ALLOWED_MIME_TYPE.includes(data.mimetype)) {
+      return {
+        result: "FILE_MIME_TYPE_NOT_ALLOWED",
+        error: `Mime type not allowed`,
+      };
+    }
+
+    // get file size
+    const size = Buffer.byteLength(data.data);
+
+    // check if file size more than limit
+    if (
+      size > config.FILE_UPLOAD_MAX_SIZE &&
+      config.FILE_UPLOAD_MAX_FILEDS > 0
+    ) {
+      return {
+        result: "FILE_SIZE_OVER_LIMIT",
+        error: `File size cannot larger than ${config.FILE_UPLOAD_MAX_FILEDS} bytes`,
       };
     }
 
@@ -77,7 +125,7 @@ export const uploadSingleFile = async (
     */
 
     return {
-      result: true,
+      result: "OK",
       data: {
         filename: data.filename,
         hashfilename: hashfilename,
@@ -88,7 +136,7 @@ export const uploadSingleFile = async (
     };
   } catch (e) {
     return {
-      result: false,
+      result: "FILE_UPLOAD_ERROR",
       error: e,
     };
   }

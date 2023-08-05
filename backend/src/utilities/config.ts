@@ -24,7 +24,15 @@ export default {
     process.env.NODE_ENV !== "production"
       ? "src/contents/uploads"
       : "contents/uploads",
-  FILE_EXT_ALLOWED: ["jpeg", "jpg", "png"],
+  FILE_EXT_ALLOWED: ["jpeg", "jpg", "png", "pdf", "xlsx", "xls"],
+  FILE_ALLOWED_MIME_TYPE: [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+  ],
   FILE_UPLOAD_MAX_SIZE: 1024 * 1024 * 2, // approx 2MB
   FILE_UPLOAD_MAX_FILEDS: 5,
 };

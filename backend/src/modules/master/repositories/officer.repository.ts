@@ -155,7 +155,7 @@ class OfficerRepository {
       // ambil role_id officer
       const role = await tx.role.findUnique({
         where: {
-          code: "officerx",
+          code: "officer",
         },
       });
 
@@ -184,7 +184,7 @@ class OfficerRepository {
           photo_filename: input.photo_filename,
           photo_filename_hash: input.photo_filename_hash,
           rating: 0,
-          is_active: true,
+          is_active: input.is_active,
           created_by: user_id,
           created_at: new Date(),
         },
@@ -201,40 +201,55 @@ class OfficerRepository {
     input: OfficerUpdateRequestSchema,
     user_id: string | null
   ) {
-    // save
-    const data = await prisma.officer.update({
-      where: {
-        id: id,
-      },
-      data: {
-        code: input.code,
-        name: input.name,
-        updated_by: user_id,
-        updated_at: new Date(),
-      },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        created_at: true,
-        updated_at: true,
-      },
+    const transaction = await prisma.$transaction(async (tx) => {
+      // save
+      const officer = await tx.officer.update({
+        where: {
+          id: id,
+        },
+        data: {
+          code: input.code,
+          name: input.name,
+          phone_no: input.phone_no,
+          email: input.email,
+          photo_filename: input.photo_filename,
+          photo_filename_hash: input.photo_filename_hash,
+          is_active: input.is_active,
+          updated_by: user_id,
+          updated_at: new Date(),
+        },
+      });
+
+      // Buat user
+      await tx.user.update({
+        where: {
+          id: officer.user_id,
+        },
+        data: {
+          email: input.email,
+          name: input.name,
+          updated_by: user_id,
+          updated_at: new Date(),
+        },
+      });
+
+      return officer;
     });
 
-    return data;
+    return transaction;
   }
 
   async deleteOfficer(id: string) {
     const transaction = await prisma.$transaction(async (tx) => {
       // delete officer
-      const officer = await prisma.officer.delete({
+      const officer = await tx.officer.delete({
         where: {
           id,
         },
       });
 
       // delete user
-      await prisma.user.delete({
+      await tx.user.delete({
         where: {
           id: officer.user_id,
         },

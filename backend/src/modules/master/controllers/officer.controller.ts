@@ -118,14 +118,16 @@ export async function createOfficerHandler(
     );
 
     // if upload not null
-    if (upload.result) {
+    if (upload.result === "OK") {
       if (upload.data != null) {
         input.photo_filename = upload.data?.filename;
         input.photo_filename_hash = upload.data?.hashfilename;
         fileuploaded = upload.data?.hashfilename;
       }
     } else {
-      return reply.badRequest(upload.error);
+      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+        return reply.badRequest(upload.error);
+      }
     }
 
     // save
@@ -154,7 +156,14 @@ export async function updateOfficerHandler(
   }>,
   reply: FastifyReply
 ) {
+  let fileuploaded: string = "";
+
   try {
+    // check if not multipart
+    if (!request.isMultipart()) {
+      return reply.code(400).send(new Error("Request is not multipart"));
+    }
+
     // get params
     const params = request.params;
 
@@ -175,6 +184,46 @@ export async function updateOfficerHandler(
       officer.id !== params.id
     ) {
       return reply.conflict("Kode sudah digunakan");
+    }
+
+    // check if email duplicate
+    const officerEmail = await service.getOfficerByEmail(input.email);
+    if (
+      officerEmail !== null &&
+      officerEmail.email === input.email &&
+      officerEmail.id !== params.id
+    ) {
+      return reply.conflict("Email untuk petugas sudah digunakan");
+    }
+
+    // check if email duplicate in user
+    const userEmailDuplicate = await userService.getUserByEmail(input.email);
+    if (
+      userEmailDuplicate !== null &&
+      userEmailDuplicate.email === input.email &&
+      userEmailDuplicate.id !== officerEmail?.user_id
+    ) {
+      return reply.conflict("Email untuk user sudah digunakan");
+    }
+
+    // upload file
+    const upload = await uploadSingleFile(
+      input.photo_file,
+      config.FILE_PATH_UPLOADS,
+      ["png", "jpg", "jpeg"]
+    );
+
+    // if upload not null
+    if (upload.result === "OK") {
+      if (upload.data != null) {
+        input.photo_filename = upload.data?.filename;
+        input.photo_filename_hash = upload.data?.hashfilename;
+        fileuploaded = upload.data?.hashfilename;
+      }
+    } else {
+      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+        return reply.badRequest(upload.error);
+      }
     }
 
     // save

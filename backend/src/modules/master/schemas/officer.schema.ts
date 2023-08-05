@@ -1,4 +1,3 @@
-import config from "@utilities/config";
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
@@ -9,13 +8,14 @@ const officerSchema = {
   name: z.string(),
   phone_no: z.string(),
   email: z.string().email(),
-  photo_file: z.any().nullish(),
+  photo_file: z
+    .custom<FileList>()
+    .transform((file) => file.length > 0 && file.item(0))
+    .nullish(),
   photo_filename: z.string().nullish(),
   photo_filename_hash: z.string().nullish(),
   rating: z.number().nullish(),
   is_active: z.boolean(),
-  created_by: z.string().nullish(),
-  updated_by: z.string().nullish(),
   created_at: z.date().nullish(),
   updated_at: z.date().nullish(),
 };
@@ -41,31 +41,6 @@ const officerParamsRequestSchema = z.object({
 
 const officerCreateRequestSchema = z.object({
   ...officerSchema,
-  photo_file: z
-    .custom<FileList>()
-    .transform((file) => file.length > 0 && file.item(0))
-    .refine(
-      (file) => !file || (!!file && file.size <= config.FILE_UPLOAD_MAX_SIZE),
-      {
-        message: "The profile picture must be a maximum of 10MB.",
-      }
-    )
-    .refine(
-      (file) =>
-        !file || (!!file && !config.FILE_EXT_ALLOWED.includes(file?.type)),
-      {
-        message: "Only images are allowed to be sent.",
-      }
-    )
-    /* .refine(
-      (file) => file?.size < config.FILE_UPLOAD_MAX_SIZE,
-      "Max file size 2MB"
-    )
-    .refine(
-      (file) => config.FILE_EXT_ALLOWED.includes(file?.type),
-      "Tipe file tidak diperbolehkan."
-    ) */
-    .nullish(),
 });
 
 const officerUpdateRequestSchema = z.object({
