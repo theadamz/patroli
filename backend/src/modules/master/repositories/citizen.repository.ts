@@ -1,20 +1,23 @@
 import prisma from "@utilities/prisma";
 import {
-  OfficerCreateRequestSchema,
-  OfficerQueryParametersSchema,
-  OfficerUpdateRequestSchema,
-} from "@modules/master/schemas/officer.schema";
+  CitizenCreateRequestSchema,
+  CitizenQueryParametersSchema,
+  CitizenUpdateRequestSchema,
+} from "@modules/master/schemas/citizen.schema";
 import { ObjectId } from "bson";
 import { hashPassword } from "@utilities/hashPassword";
 
-class OfficerRepository {
-  async getOfficers(query: OfficerQueryParametersSchema) {
+class CitizenRepository {
+  async getCitizens(query: CitizenQueryParametersSchema) {
     // search
     const search = query.search === undefined ? "" : query.search;
 
     // where parameters
     const whereParameters = {
-      OR: [{ code: { contains: search } }, { name: { contains: search } }],
+      OR: [
+        { id_card_number: { contains: search } },
+        { name: { contains: search } },
+      ],
       AND: [{ is_active: query.is_active }],
     };
 
@@ -40,16 +43,16 @@ class OfficerRepository {
 
     // get data and count
     const [records, recordsCount] = await prisma.$transaction([
-      prisma.officer.findMany({
+      prisma.citizen.findMany({
         select: {
           id: true,
           user_id: true,
-          code: true,
+          id_card_number: true,
           name: true,
           phone_no: true,
           email: true,
+          photo_filename: true,
           photo_filename_hash: true,
-          rating: true,
           last_coordinates: true,
           is_active: true,
           created_at: true,
@@ -60,7 +63,7 @@ class OfficerRepository {
         skip: skip,
         take: take,
       }),
-      prisma.officer.count({
+      prisma.citizen.count({
         where: whereParameters,
       }),
     ]);
@@ -76,20 +79,20 @@ class OfficerRepository {
     };
   }
 
-  async getOfficerById(id: string) {
-    const record = await prisma.officer.findUnique({
+  async getCitizenById(id: string) {
+    const record = await prisma.citizen.findUnique({
       where: {
         id,
       },
       select: {
         id: true,
         user_id: true,
-        code: true,
+        id_card_number: true,
         name: true,
         phone_no: true,
         email: true,
+        photo_filename: true,
         photo_filename_hash: true,
-        rating: true,
         last_coordinates: true,
         is_active: true,
         created_at: true,
@@ -100,20 +103,20 @@ class OfficerRepository {
     return record;
   }
 
-  async getOfficerByCode(code: string) {
-    const record = await prisma.officer.findUnique({
+  async getCitizenByCode(code: string) {
+    const record = await prisma.citizen.findUnique({
       where: {
-        code: code,
+        id_card_number: code,
       },
       select: {
         id: true,
         user_id: true,
-        code: true,
+        id_card_number: true,
         name: true,
         phone_no: true,
         email: true,
+        photo_filename: true,
         photo_filename_hash: true,
-        rating: true,
         last_coordinates: true,
         is_active: true,
         created_at: true,
@@ -124,20 +127,20 @@ class OfficerRepository {
     return record;
   }
 
-  async getOfficerByEmail(email: string) {
-    const record = await prisma.officer.findUnique({
+  async getCitizenByEmail(email: string) {
+    const record = await prisma.citizen.findUnique({
       where: {
         email: email,
       },
       select: {
         id: true,
         user_id: true,
-        code: true,
+        id_card_number: true,
         name: true,
         phone_no: true,
         email: true,
+        photo_filename: true,
         photo_filename_hash: true,
-        rating: true,
         last_coordinates: true,
         is_active: true,
         created_at: true,
@@ -148,20 +151,20 @@ class OfficerRepository {
     return record;
   }
 
-  async getOfficerByPhone(phone_no: string) {
-    const record = await prisma.officer.findUnique({
+  async getCitizenByPhone(phone_no: string) {
+    const record = await prisma.citizen.findUnique({
       where: {
         phone_no: phone_no,
       },
       select: {
         id: true,
         user_id: true,
-        code: true,
+        id_card_number: true,
         name: true,
         phone_no: true,
         email: true,
+        photo_filename: true,
         photo_filename_hash: true,
-        rating: true,
         last_coordinates: true,
         is_active: true,
         created_at: true,
@@ -172,17 +175,17 @@ class OfficerRepository {
     return record;
   }
 
-  async createOfficer(
-    input: OfficerCreateRequestSchema,
+  async createCitizen(
+    input: CitizenCreateRequestSchema,
     user_id: string | null
   ) {
     const password = await hashPassword(input.email);
 
     const transaction = await prisma.$transaction(async (tx) => {
-      // ambil role_id officer
+      // ambil role_id citizen
       const role = await tx.role.findUnique({
         where: {
-          code: "officer",
+          code: "citizen",
         },
       });
 
@@ -193,7 +196,7 @@ class OfficerRepository {
           password: password,
           name: input.name,
           role_id: role?.id,
-          actor: "officer",
+          actor: "citizen",
           public_id: new ObjectId().toString(),
           created_by: user_id,
           created_at: new Date(),
@@ -201,48 +204,45 @@ class OfficerRepository {
       });
 
       // save
-      const officer = await tx.officer.create({
+      const citizen = await tx.citizen.create({
         data: {
           user_id: user.id,
-          code: input.code,
+          id_card_number: input.id_card_number,
           name: input.name,
           phone_no: input.phone_no,
           email: input.email,
           photo_filename: input.photo_filename,
           photo_filename_hash: input.photo_filename_hash,
-          rating: 0,
-          is_active: input.is_active,
-          created_by: user_id,
+          is_active: true,
           created_at: new Date(),
         },
       });
 
-      return officer;
+      return citizen;
     });
 
     return transaction;
   }
 
-  async updateOfficer(
+  async updateCitizen(
     id: string,
-    input: OfficerUpdateRequestSchema,
+    input: CitizenUpdateRequestSchema,
     user_id: string | null
   ) {
     const transaction = await prisma.$transaction(async (tx) => {
       // save
-      const officer = await tx.officer.update({
+      const citizen = await tx.citizen.update({
         where: {
           id: id,
         },
         data: {
-          code: input.code,
+          id_card_number: input.id_card_number,
           name: input.name,
           phone_no: input.phone_no,
           email: input.email,
           photo_filename: input.photo_filename,
           photo_filename_hash: input.photo_filename_hash,
-          is_active: input.is_active,
-          updated_by: user_id,
+          is_active: input.is_active === null ? false : input.is_active,
           updated_at: new Date(),
         },
       });
@@ -250,7 +250,7 @@ class OfficerRepository {
       // Buat user
       await tx.user.update({
         where: {
-          id: officer.user_id,
+          id: citizen.user_id,
         },
         data: {
           email: input.email,
@@ -260,16 +260,16 @@ class OfficerRepository {
         },
       });
 
-      return officer;
+      return citizen;
     });
 
     return transaction;
   }
 
-  async deleteOfficer(id: string) {
+  async deleteCitizen(id: string) {
     const transaction = await prisma.$transaction(async (tx) => {
-      // delete officer
-      const officer = await tx.officer.delete({
+      // delete citizen
+      const citizen = await tx.citizen.delete({
         where: {
           id,
         },
@@ -278,15 +278,15 @@ class OfficerRepository {
       // delete user
       await tx.user.delete({
         where: {
-          id: officer.user_id,
+          id: citizen.user_id,
         },
       });
 
-      return officer;
+      return citizen;
     });
 
     return transaction;
   }
 }
 
-export default OfficerRepository;
+export default CitizenRepository;

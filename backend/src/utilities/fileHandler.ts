@@ -52,7 +52,6 @@ export const uploadSingleFile = async (
 
     // get first file
     const data = files[0];
-    console.log(data);
 
     // if data.data undefined
     if (data.data === undefined) {
@@ -143,5 +142,8 @@ export const uploadSingleFile = async (
 };
 
 export const deleteFile = async (filePath: string) => {
-  return fs.unlinkSync(filePath);
+  // check jika file exist
+  if (fs.existsSync(filePath)) {
+    return fs.unlinkSync(filePath);
+  }
 };

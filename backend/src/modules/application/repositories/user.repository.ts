@@ -296,7 +296,7 @@ class UserRepository {
       select: {
         id_card_number: true,
         phone_no: true,
-        photo_file: true,
+        photo_filename_hash: true,
       },
     });
 

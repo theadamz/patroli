@@ -17,29 +17,41 @@ const getSecret = async () => {
     .digest("hex");
 };
 
-export const csrfGenerateToken = async () => {
+export const csrfGenerateToken = async (registerToken: boolean = true) => {
   const secret = await getSecret(); // get secret
 
   const token = csrf(configCsrf).create(secret); // generate token
 
-  const registeredToken = await registerNewToken(token); // register token
+  if (registerToken) {
+    const registeredToken = await registerNewToken(token); // register token
 
-  return registeredToken.token;
+    return registeredToken.token;
+  } else {
+    return token;
+  }
 };
 
-export const csrfVerifyToken = async (token: string) => {
+export const csrfVerifyToken = async (
+  token: string,
+  useRegisteredToken: boolean = true
+) => {
   try {
     const secret = await getSecret(); // get secret
 
-    const extToken = await getExistingToken(token); // get existing token
+    if (useRegisteredToken) {
+      const extToken = await getExistingToken(token); // get existing token
 
-    // if token not exist
-    if (extToken === null) {
-      return false;
+      // if token not exist
+      if (extToken === null) {
+        return false;
+      }
+
+      // validate token
+      return csrf(configCsrf).verify(secret, token);
+    } else {
+      // validate token
+      return csrf(configCsrf).verify(secret, token);
     }
-
-    // validate token
-    return csrf(configCsrf).verify(secret, token);
   } catch (error) {
     return error;
   }

@@ -1,22 +1,22 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import {
-  OfficerQueryParametersSchema,
-  OfficerParamsRequestSchema,
-  OfficerCreateRequestSchema,
-  OfficerUpdateRequestSchema,
-} from "@modules/master/schemas/officer.schema";
+  CitizenQueryParametersSchema,
+  CitizenParamsRequestSchema,
+  CitizenCreateRequestSchema,
+  CitizenUpdateRequestSchema,
+} from "@modules/master/schemas/citizen.schema";
 import { ObjectId } from "bson";
-import OfficerService from "../services/officer.service";
+import CitizenService from "../services/citizen.service";
 import UserService from "@modules/application/services/user.service";
 import { deleteFile, uploadSingleFile } from "@utilities/fileHandler";
 import config from "@utilities/config";
 
 // service
-const service = new OfficerService();
+const service = new CitizenService();
 const userService = new UserService();
 
-export async function getOfficersHandler(
-  request: FastifyRequest<{ Querystring: OfficerQueryParametersSchema }>,
+export async function getCitizensHandler(
+  request: FastifyRequest<{ Querystring: CitizenQueryParametersSchema }>,
   reply: FastifyReply
 ) {
   try {
@@ -24,7 +24,7 @@ export async function getOfficersHandler(
     const query = request.query;
 
     // get data
-    const response = await service.getOfficers(query);
+    const response = await service.getCitizens(query);
 
     // if total data <= 0
     if (response.total <= 0) {
@@ -41,8 +41,8 @@ export async function getOfficersHandler(
   }
 }
 
-export async function getOfficerHandler(
-  request: FastifyRequest<{ Params: OfficerParamsRequestSchema }>,
+export async function getCitizenHandler(
+  request: FastifyRequest<{ Params: CitizenParamsRequestSchema }>,
   reply: FastifyReply
 ) {
   try {
@@ -54,9 +54,9 @@ export async function getOfficerHandler(
 
     // check if object id is valid
     if (ObjectId.isValid(params.id)) {
-      response = await service.getOfficerById(params.id); // get data
+      response = await service.getCitizenById(params.id); // get data
     } else {
-      response = await service.getOfficerByCode(params.id); // get data
+      response = await service.getCitizenByCode(params.id); // get data
     }
 
     // if data not found
@@ -74,8 +74,8 @@ export async function getOfficerHandler(
   }
 }
 
-export async function createOfficerHandler(
-  request: FastifyRequest<{ Body: OfficerCreateRequestSchema }>,
+export async function createCitizenHandler(
+  request: FastifyRequest<{ Body: CitizenCreateRequestSchema }>,
   reply: FastifyReply
 ) {
   let fileuploaded: string = "";
@@ -89,21 +89,21 @@ export async function createOfficerHandler(
     // Get input
     const input = request.body;
 
-    // check duplicate code
-    const officer = await service.getOfficerByCode(input.code);
-    if (officer !== null && officer.code === input.code) {
-      return reply.conflict("Kode sudah digunakan");
+    // check duplicate code / id_card_number
+    const citizen = await service.getCitizenByCode(input.id_card_number);
+    if (citizen !== null && citizen.id_card_number === input.id_card_number) {
+      return reply.conflict("No. KTP sudah teregistrasi.");
     }
 
     // check duplicate email
-    const officerEmail = await service.getOfficerByEmail(input.email);
-    if (officerEmail !== null && officerEmail.email === input.email) {
+    const citizenEmail = await service.getCitizenByEmail(input.email);
+    if (citizenEmail !== null && citizenEmail.email === input.email) {
       return reply.conflict("Email untuk petugas sudah digunakan");
     }
 
     // check duplicate phone_no
-    const officerPhone = await service.getOfficerByPhone(input.phone_no);
-    if (officerPhone !== null && officerPhone.phone_no === input.phone_no) {
+    const citizenPhone = await service.getCitizenByPhone(input.email);
+    if (citizenPhone !== null && citizenPhone.phone_no === input.phone_no) {
       return reply.conflict("Nomor handphone sudah teregistrasi");
     }
 
@@ -137,7 +137,7 @@ export async function createOfficerHandler(
     }
 
     // save
-    const response = await service.createOfficer(input, request.auth.user.id);
+    const response = await service.createCitizen(input, null);
 
     // Send response
     return reply.code(201).send(response);
@@ -155,10 +155,10 @@ export async function createOfficerHandler(
   }
 }
 
-export async function updateOfficerHandler(
+export async function updateCitizenHandler(
   request: FastifyRequest<{
-    Params: OfficerParamsRequestSchema;
-    Body: OfficerUpdateRequestSchema;
+    Params: CitizenParamsRequestSchema;
+    Body: CitizenUpdateRequestSchema;
   }>,
   reply: FastifyReply
 ) {
@@ -177,37 +177,37 @@ export async function updateOfficerHandler(
     const input = request.body;
 
     // check if data is exist
-    const getData = await service.getOfficerById(params.id);
+    const getData = await service.getCitizenById(params.id);
     if (getData === null) {
       return reply.notFound("Data tidak ditemukan");
     }
 
-    // check duplicate code
-    const officer = await service.getOfficerByCode(input.code);
+    // check duplicate
+    const citizen = await service.getCitizenByCode(input.id_card_number);
     if (
-      officer !== null &&
-      officer.code === input.code &&
-      officer.id !== params.id
+      citizen !== null &&
+      citizen.id_card_number === input.id_card_number &&
+      citizen.id !== params.id
     ) {
       return reply.conflict("Kode sudah digunakan");
     }
 
     // check duplicate email
-    const officerEmail = await service.getOfficerByEmail(input.email);
+    const citizenEmail = await service.getCitizenByEmail(input.email);
     if (
-      officerEmail !== null &&
-      officerEmail.email === input.email &&
-      officerEmail.id !== params.id
+      citizenEmail !== null &&
+      citizenEmail.email === input.email &&
+      citizenEmail.id !== params.id
     ) {
       return reply.conflict("Email untuk petugas sudah digunakan");
     }
 
     // check duplicate phone_no
-    const officerPhone = await service.getOfficerByPhone(input.phone_no);
+    const citizenPhone = await service.getCitizenByPhone(input.email);
     if (
-      officerPhone !== null &&
-      officerPhone.phone_no === input.phone_no &&
-      officerPhone.id !== params.id
+      citizenPhone !== null &&
+      citizenPhone.phone_no === input.phone_no &&
+      citizenPhone.id !== params.id
     ) {
       return reply.conflict("Nomor handphone sudah teregistrasi");
     }
@@ -217,7 +217,7 @@ export async function updateOfficerHandler(
     if (
       userEmailDuplicate !== null &&
       userEmailDuplicate.email === input.email &&
-      userEmailDuplicate.id !== officerEmail?.user_id
+      userEmailDuplicate.id !== citizenEmail?.user_id
     ) {
       return reply.conflict("Email untuk user sudah digunakan");
     }
@@ -247,7 +247,7 @@ export async function updateOfficerHandler(
     }
 
     // save
-    const response = await service.updateOfficer(
+    const response = await service.updateCitizen(
       params.id,
       input,
       request.auth.user.id
@@ -264,8 +264,8 @@ export async function updateOfficerHandler(
   }
 }
 
-export async function deleteOfficerHandler(
-  request: FastifyRequest<{ Params: OfficerParamsRequestSchema }>,
+export async function deleteCitizenHandler(
+  request: FastifyRequest<{ Params: CitizenParamsRequestSchema }>,
   reply: FastifyReply
 ) {
   try {
@@ -281,13 +281,13 @@ export async function deleteOfficerHandler(
     }
 
     // jika data tidak ditemukan
-    const record = await service.getOfficerById(params.id); // get data
+    const record = await service.getCitizenById(params.id); // get data
     if (record === null) {
       return reply.notFound("Data tidak ditemukan");
     }
 
     // execute
-    response = await service.deleteOfficer(params.id);
+    response = await service.deleteCitizen(params.id);
 
     // hapus file
     if (response?.photo_filename_hash !== null) {

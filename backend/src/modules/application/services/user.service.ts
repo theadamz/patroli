@@ -154,7 +154,7 @@ class UserService {
         ...{
           phone_no: profile.citizen?.phone_no,
           email: profile.user?.email,
-          photo_file: profile.citizen?.photo_file,
+          photo_filename_hash: profile.citizen?.photo_filename_hash,
         },
       };
     }

@@ -6,9 +6,9 @@ export const options = {
 
 async function testRoutes(server: FastifyInstance) {
   server.get(
-    "/healthcheck",
+    "/health-check",
     async (request: FastifyRequest, reply: FastifyReply) => {
-      reply.send({ health: "OK" });
+      return reply.send({ health: "OK" });
     }
   );
 
@@ -18,7 +18,7 @@ async function testRoutes(server: FastifyInstance) {
       preHandler: [server.joseJWTAuth, server.csrfGuard],
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      reply.send({ check: "Protected Route" });
+      return reply.send({ check: "Protected Route" });
     }
   );
 
@@ -29,6 +29,13 @@ async function testRoutes(server: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       return request.body;
+    }
+  );
+
+  server.get(
+    "/static-check",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      return reply.sendFile(`uploads/_blank_photo.png`);
     }
   );
 }

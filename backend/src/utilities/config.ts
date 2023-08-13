@@ -35,4 +35,6 @@ export default {
   ],
   FILE_UPLOAD_MAX_SIZE: 1024 * 1024 * 2, // approx 2MB
   FILE_UPLOAD_MAX_FILEDS: 5,
+  STATIC_PATH_CONTENTS: "contents",
+  STATIC_PATH_PREFIX_CONTENTS: "/contents",
 };

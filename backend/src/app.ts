@@ -23,7 +23,7 @@ async function main() {
     await registerAliases();
 
     // register hooks
-    await registerHooks(app);
+    await registerHooks(app, __dirname);
 
     // register schemas
     await registerSchemas(join(__dirname, "modules"), app);
@@ -35,7 +35,7 @@ async function main() {
     await registerPlugins(join(__dirname, "plugins"), app);
 
     // register route
-    await registerRoutes(join(__dirname, "routers"), app);
+    await registerRoutes(join(__dirname, "routes"), app);
 
     // initialize last decorate
     await createDecorates(join(__dirname, "decorates"), app);

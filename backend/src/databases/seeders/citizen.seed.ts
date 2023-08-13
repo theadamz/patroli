@@ -65,7 +65,7 @@ async function run() {
           name: item.name,
           phone_no: item.phone_no,
           email: item.email,
-          photo_file: item.photo_file,
+          photo_filename: item.photo_file,
         },
       });
 

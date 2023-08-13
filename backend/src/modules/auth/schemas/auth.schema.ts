@@ -3,14 +3,10 @@ import { z } from "zod";
 
 // Base schema
 const authSchema = {
-  email: z
-    .string({
-      required_error: "email dibutuhkan",
-    })
-    .email({
-      message: "Email tidak valid",
-    }),
-  password: z.string(),
+  email: z.string().email(),
+  password: z.string({
+    required_error: "Password dibutuhkan",
+  }),
 };
 
 const userInfo = z.object({

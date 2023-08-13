@@ -10,6 +10,7 @@ declare module "fastify" {
   export interface FastifyInstance {
     request: FastifyRequest;
     reply: FastifyReply;
+    rootPath: string;
   }
 }
 
@@ -26,7 +27,13 @@ declare module "fastify" {
   }
 }
 
-export default async function registerHooks(server: FastifyInstance) {
+export default async function registerHooks(
+  server: FastifyInstance,
+  rootPath: string
+) {
+  // Set rootPath
+  server.rootPath = rootPath;
+
   // hooks request & reply
   await setRequestAndReplyToInstance(server);
 

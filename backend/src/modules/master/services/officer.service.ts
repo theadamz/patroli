@@ -79,6 +79,30 @@ class OfficerService {
     };
   }
 
+  async getOfficerByPhone(
+    phone_no: string
+  ): Promise<OfficerResponseSchema | null> {
+    const officer = await this.repository.getOfficerByPhone(phone_no);
+
+    if (officer === null) return null;
+
+    return {
+      id: officer.id,
+      code: officer.code,
+      name: officer.name,
+      phone_no: officer.phone_no,
+      email: officer.email,
+      photo_filename_hash: officer.photo_filename_hash,
+      rating: officer.rating,
+      is_active: officer.is_active,
+      user_id: officer.user_id,
+      last_coordinates: [
+        officer.last_coordinates[0],
+        officer.last_coordinates[1],
+      ],
+    };
+  }
+
   async createOfficer(
     input: OfficerCreateRequestSchema,
     user_id: string | null

@@ -15,7 +15,7 @@ import {
   updatePasswordHandler,
 } from "@modules/auth/controllers/auth.controller";
 import config from "@utilities/config";
-import { verifyToken } from "@root/utilities/joseJWTAuth";
+import { verifyToken } from "@utilities/joseJWTAuth";
 
 export const options: FastifyPluginOptions = {
   prefix: "v1",
@@ -90,12 +90,12 @@ export default async function authRoutes(server: FastifyInstance) {
       reply.clearCookie(config.TOKEN_REFRESH_NAME);
 
       // clear cookie token access
-      if (config.TOKEN_ACCESS) {
+      if (config.TOKEN_ACCESS === true) {
         reply.clearCookie(config.TOKEN_ACCESS_NAME);
       }
 
       // clear cookie token csrf
-      if (config.TOKEN_CSRF) {
+      if (config.TOKEN_CSRF === true) {
         reply.clearCookie(config.TOKEN_CSRF_NAME);
       }
 
