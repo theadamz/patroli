@@ -13,22 +13,26 @@ backend for patroli
 - rethinkDB - realtime database
 - socket.io - realtime communication
 
-# How to create project?
+# How to use?
 
-```
-pnpm init
-pnpm dlx typescript --init
-```
+* Make sure you have node js and pnpm installed.
+* Go to backend directory folder and open your terminal (use bash or something similar if you use windows).
+* Install dependencies
 
-# How to start
+  ```
+  pnpm install
+  ```
+* Run server with :
 
-```
-pnpm add fastify @fastify/jwt @fastify/sensible fastify-zod zod zod-to-json-schema bcrypt bson
-pnpm add ts-node-dev typescript @types/node -D
-pnpm add typescript ts-node @types/node -D
-pnpm add @types/bcrypt -D
+  ```
+  pnpm dev
+  ```
+* Build script use this command :
 
-```
+  ```
+  pnpm build // will create dist folder
+  ```
+* a
 
 ## Prisma Init
 
@@ -56,7 +60,7 @@ pnpm add @types/bcrypt -D
 - Migrate the schema
 
   ```
-  pnpm dlx prisma migrate dev --name init
+  npx prisma migrate dev --name init
 
   No need to run migrate command according to this link :
   https://www.prisma.io/docs/concepts/database-connectors/mongodb
@@ -65,9 +69,9 @@ pnpm add @types/bcrypt -D
 - Run this command everytime you make changes in any schema :
 
   ```
-  pnpm dlx prisma generate
+  npx prisma generate // to generate client
   or
-  pnpm dlx prisma db push
+  npx prisma db push // to update type safe, index, etc
   ```
 - Prisma docs :
 
@@ -75,11 +79,10 @@ pnpm add @types/bcrypt -D
   https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#transaction
   https://www.prisma.io/docs/concepts/components/prisma-client/transactions
   ```
-- If you already update schema but cannot insert/update your data, stop your server/fastify and run `npx prisma generate` then run again your server.
 
 ## Prisma Seed
 
-- Create file in folder src/seeders
+- Create file in folder src/databases/seeders
 - Import and call seed in src/databases/prisma/seed.ts
 - Run command seed with
 
