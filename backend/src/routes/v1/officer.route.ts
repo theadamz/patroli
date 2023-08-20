@@ -87,6 +87,7 @@ export default async function officerRoutes(
         server.csrfGuard,
       ],
       schema: {
+        consumes: ["multipart/form-data"],
         params: $ref("officerParamsRequestSchema"),
         body: $ref("officerUpdateRequestSchema"),
         response: {

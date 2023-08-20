@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import config from "./config";
 import { generateAccessToken } from "./joseJWTAuth";
-import { UserInfo } from "../modules/auth/schemas/auth.schema";
+import { JwtPayload, UserInfo } from "../modules/application/schemas/commons";
 import { csrfGenerateToken } from "./csrf";
 import { MenuAccessType } from "@root/modules/application/schemas/menu.schema";
 
@@ -19,7 +19,7 @@ declare module "fastify" {
     auth: {
       id: string;
       user: UserInfo;
-      payload: any;
+      payload: JwtPayload;
       token: string;
     };
     menu_code: string;
@@ -42,7 +42,7 @@ export default async function registerHooks(
 }
 
 const setRequestAndReplyToInstance = async (server: FastifyInstance) => {
-  await server.addHook(
+  server.addHook(
     "onRequest",
     async function (request: FastifyRequest, reply: FastifyReply) {
       server.request = request;
@@ -52,7 +52,7 @@ const setRequestAndReplyToInstance = async (server: FastifyInstance) => {
 };
 
 const responseTokens = async (server: FastifyInstance) => {
-  await server.addHook(
+  server.addHook(
     "onSend",
     async (request: FastifyRequest, reply: FastifyReply, payload: any) => {
       // if use token access and user not undefined
@@ -65,6 +65,8 @@ const responseTokens = async (server: FastifyInstance) => {
         // generate access token
         const accessToken = await generateAccessToken({
           id: request.auth.id,
+          actor: request.auth.payload.actor,
+          actor_id: request.auth.payload.actor_id,
         });
 
         // Set cookie

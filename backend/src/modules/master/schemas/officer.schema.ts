@@ -1,17 +1,19 @@
+import {
+  REGEX_CODE,
+  fileTypeOptional,
+} from "@modules/application/schemas/commons";
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 // Base schema
 const officerSchema = {
   id: z.string().nullish(),
-  code: z.string(),
+  user_id: z.string().nullish(),
+  code: z.string().regex(REGEX_CODE),
   name: z.string(),
   phone_no: z.string(),
   email: z.string().email(),
-  photo_file: z
-    .custom<FileList>()
-    .transform((file) => file.length > 0 && file.item(0))
-    .nullish(),
+  photo_file: z.array(fileTypeOptional).nullish(),
   photo_filename: z.string().nullish(),
   photo_filename_hash: z.string().nullish(),
   rating: z.number().nullish(),

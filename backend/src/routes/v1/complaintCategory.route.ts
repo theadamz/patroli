@@ -13,7 +13,7 @@ export const options: FastifyPluginOptions = {
   prefix: "v1/complaints/categories",
 };
 
-export default async function categoryRoutes(
+export default async function complaintCategoryRoutes(
   server: FastifyInstance
 ): Promise<void> {
   server.get(

@@ -9,7 +9,7 @@ export const options = {
     fieldNameSize: 100,
     fields: 20,
     fileSize: config.FILE_UPLOAD_MAX_SIZE,
-    files: config.FILE_UPLOAD_MAX_FILEDS,
+    files: config.FILE_UPLOAD_MAX_FIELDS,
   },
   attachFieldsToBody: true,
   addToBody: true,

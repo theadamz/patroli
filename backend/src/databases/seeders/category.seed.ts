@@ -11,7 +11,7 @@ export default async function main() {
 async function run() {
   console.log("Insert data");
 
-  const data = await prisma.complain_category.createMany({
+  const data = await prisma.complaint_category.createMany({
     data: [
       { name: "Gangguan", is_visible: true },
       { name: "Pencurian", is_visible: true },

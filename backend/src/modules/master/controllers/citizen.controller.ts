@@ -8,12 +8,19 @@ import {
 import { ObjectId } from "bson";
 import CitizenService from "../services/citizen.service";
 import UserService from "@modules/application/services/user.service";
-import { deleteFile, uploadSingleFile } from "@utilities/fileHandler";
+import {
+  FileHandlerResult,
+  deleteFile,
+  uploadSingleFile,
+} from "@utilities/fileHandler";
 import config from "@utilities/config";
 
 // service
 const service = new CitizenService();
 const userService = new UserService();
+
+// variables
+let fileuploaded: string = "";
 
 export async function getCitizensHandler(
   request: FastifyRequest<{ Querystring: CitizenQueryParametersSchema }>,
@@ -78,8 +85,6 @@ export async function createCitizenHandler(
   request: FastifyRequest<{ Body: CitizenCreateRequestSchema }>,
   reply: FastifyReply
 ) {
-  let fileuploaded: string = "";
-
   try {
     // check if not multipart
     if (!request.isMultipart()) {
@@ -98,7 +103,9 @@ export async function createCitizenHandler(
     // check duplicate email
     const citizenEmail = await service.getCitizenByEmail(input.email);
     if (citizenEmail !== null && citizenEmail.email === input.email) {
-      return reply.conflict("Email untuk petugas sudah digunakan");
+      return reply.conflict(
+        "Email sudah teregistrasi, silahkan gunakan yang lain."
+      );
     }
 
     // check duplicate phone_no
@@ -119,19 +126,23 @@ export async function createCitizenHandler(
     // upload file
     const upload = await uploadSingleFile(
       input.photo_file,
-      config.FILE_PATH_UPLOADS,
-      ["png", "jpg", "jpeg"]
+      ["png", "jpg", "jpeg"],
+      config.FILE_PATH_UPLOADS
     );
 
     // if upload not null
-    if (upload.result === "OK") {
-      if (upload.data != null) {
-        input.photo_filename = upload.data?.filename;
-        input.photo_filename_hash = upload.data?.hashfilename;
-        fileuploaded = upload.data?.hashfilename;
-      }
+    if (upload.result === FileHandlerResult.OK) {
+      input.photo_filename = upload.data!.filename;
+      input.photo_filename_hash = upload.data!.filenamehash;
+
+      fileuploaded = upload.data!.filenamehash!;
     } else {
-      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+      if (
+        ![
+          FileHandlerResult.FILE_NOT_FOUND,
+          FileHandlerResult.FILE_UNDEFINED,
+        ].includes(upload.result)
+      ) {
         return reply.badRequest(upload.error);
       }
     }
@@ -162,8 +173,6 @@ export async function updateCitizenHandler(
   }>,
   reply: FastifyReply
 ) {
-  let fileuploaded: string = "";
-
   try {
     // check if not multipart
     if (!request.isMultipart()) {
@@ -189,7 +198,7 @@ export async function updateCitizenHandler(
       citizen.id_card_number === input.id_card_number &&
       citizen.id !== params.id
     ) {
-      return reply.conflict("Kode sudah digunakan");
+      return reply.conflict("No. KTP sudah teregistrasi.");
     }
 
     // check duplicate email
@@ -199,7 +208,9 @@ export async function updateCitizenHandler(
       citizenEmail.email === input.email &&
       citizenEmail.id !== params.id
     ) {
-      return reply.conflict("Email untuk petugas sudah digunakan");
+      return reply.conflict(
+        "Email sudah teregistrasi, silahkan gunakan yang lain."
+      );
     }
 
     // check duplicate phone_no
@@ -225,23 +236,27 @@ export async function updateCitizenHandler(
     // upload file
     const upload = await uploadSingleFile(
       input.photo_file,
-      config.FILE_PATH_UPLOADS,
-      ["png", "jpg", "jpeg"]
+      ["png", "jpg", "jpeg"],
+      config.FILE_PATH_UPLOADS
     );
 
     // if upload not null
-    if (upload.result === "OK") {
-      if (upload.data != null) {
-        input.photo_filename = upload.data?.filename;
-        input.photo_filename_hash = upload.data?.hashfilename;
-        fileuploaded = upload.data?.hashfilename;
-      }
+    if (upload.result === FileHandlerResult.OK) {
+      input.photo_filename = upload.data!.filename;
+      input.photo_filename_hash = upload.data!.filenamehash;
+      fileuploaded = upload.data!.filenamehash!;
 
+      // delete old file
       await deleteFile(
         `${config.FILE_PATH_UPLOADS}/${getData.photo_filename_hash}`
       );
     } else {
-      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+      if (
+        ![
+          FileHandlerResult.FILE_NOT_FOUND,
+          FileHandlerResult.FILE_UNDEFINED,
+        ].includes(upload.result)
+      ) {
         return reply.badRequest(upload.error);
       }
     }
@@ -258,6 +273,11 @@ export async function updateCitizenHandler(
   } catch (e: any) {
     // Console log
     console.log(e);
+
+    // hapus file photo karena error
+    if ((e !== null || e !== undefined) && fileuploaded != "") {
+      deleteFile(`${config.FILE_PATH_UPLOADS}/${fileuploaded}`);
+    }
 
     // Send response
     return reply.code(500).send(e);

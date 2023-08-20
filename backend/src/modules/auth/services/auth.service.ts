@@ -1,5 +1,5 @@
 import prisma from "@utilities/prisma";
-import { PlatformEnum } from "@modules/auth/schemas/auth.schema";
+import { PlatformEnum } from "@modules/application/schemas/commons";
 
 export default class AuthService {
   async createUserLog(user_id: string, platform: PlatformEnum) {

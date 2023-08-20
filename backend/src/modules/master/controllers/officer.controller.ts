@@ -8,12 +8,19 @@ import {
 import { ObjectId } from "bson";
 import OfficerService from "../services/officer.service";
 import UserService from "@modules/application/services/user.service";
-import { deleteFile, uploadSingleFile } from "@utilities/fileHandler";
+import {
+  FileHandlerResult,
+  deleteFile,
+  uploadSingleFile,
+} from "@utilities/fileHandler";
 import config from "@utilities/config";
 
 // service
 const service = new OfficerService();
 const userService = new UserService();
+
+// variables
+let fileUploaded: string = "";
 
 export async function getOfficersHandler(
   request: FastifyRequest<{ Querystring: OfficerQueryParametersSchema }>,
@@ -78,8 +85,6 @@ export async function createOfficerHandler(
   request: FastifyRequest<{ Body: OfficerCreateRequestSchema }>,
   reply: FastifyReply
 ) {
-  let fileuploaded: string = "";
-
   try {
     // check if not multipart
     if (!request.isMultipart()) {
@@ -119,19 +124,23 @@ export async function createOfficerHandler(
     // upload file
     const upload = await uploadSingleFile(
       input.photo_file,
-      config.FILE_PATH_UPLOADS,
-      ["png", "jpg", "jpeg"]
+      ["png", "jpg", "jpeg"],
+      config.FILE_PATH_UPLOADS
     );
 
     // if upload not null
-    if (upload.result === "OK") {
-      if (upload.data != null) {
-        input.photo_filename = upload.data?.filename;
-        input.photo_filename_hash = upload.data?.hashfilename;
-        fileuploaded = upload.data?.hashfilename;
-      }
+    if (upload.result === FileHandlerResult.OK) {
+      input.photo_filename = upload.data!.filename;
+      input.photo_filename_hash = upload.data!.filenamehash;
+
+      fileUploaded = upload.data!.filenamehash!;
     } else {
-      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+      if (
+        ![
+          FileHandlerResult.FILE_NOT_FOUND,
+          FileHandlerResult.FILE_UNDEFINED,
+        ].includes(upload.result)
+      ) {
         return reply.badRequest(upload.error);
       }
     }
@@ -146,8 +155,8 @@ export async function createOfficerHandler(
     console.log(e);
 
     // hapus file photo karena error
-    if ((e !== null || e !== undefined) && fileuploaded != "") {
-      deleteFile(`${config.FILE_PATH_UPLOADS}/${fileuploaded}`);
+    if ((e !== null || e !== undefined) && fileUploaded != "") {
+      deleteFile(`${config.FILE_PATH_UPLOADS}/${fileUploaded}`);
     }
 
     // Send response
@@ -162,8 +171,6 @@ export async function updateOfficerHandler(
   }>,
   reply: FastifyReply
 ) {
-  let fileuploaded: string = "";
-
   try {
     // check if not multipart
     if (!request.isMultipart()) {
@@ -225,23 +232,29 @@ export async function updateOfficerHandler(
     // upload file
     const upload = await uploadSingleFile(
       input.photo_file,
-      config.FILE_PATH_UPLOADS,
-      ["png", "jpg", "jpeg"]
+      ["png", "jpg", "jpeg"],
+      config.FILE_PATH_UPLOADS
     );
 
     // if upload not null
-    if (upload.result === "OK") {
-      if (upload.data != null) {
+    if (upload.result === FileHandlerResult.OK) {
+      if (upload.data !== undefined) {
         input.photo_filename = upload.data?.filename;
-        input.photo_filename_hash = upload.data?.hashfilename;
-        fileuploaded = upload.data?.hashfilename;
+        input.photo_filename_hash = upload.data?.filenamehash;
+
+        fileUploaded = upload.data?.filenamehash!;
       }
 
       await deleteFile(
         `${config.FILE_PATH_UPLOADS}/${getData.photo_filename_hash}`
       );
     } else {
-      if (!["FILE_NOT_FOUND", "FILE_UNDEFINED"].includes(upload.result)) {
+      if (
+        ![
+          FileHandlerResult.FILE_NOT_FOUND,
+          FileHandlerResult.FILE_UNDEFINED,
+        ].includes(upload.result)
+      ) {
         return reply.badRequest(upload.error);
       }
     }
@@ -258,6 +271,11 @@ export async function updateOfficerHandler(
   } catch (e: any) {
     // Console log
     console.log(e);
+
+    // hapus file photo karena error
+    if ((e !== null || e !== undefined) && fileUploaded != "") {
+      deleteFile(`${config.FILE_PATH_UPLOADS}/${fileUploaded}`);
+    }
 
     // Send response
     return reply.code(500).send(e);

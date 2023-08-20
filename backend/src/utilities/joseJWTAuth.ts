@@ -1,5 +1,5 @@
 import * as jose from "jose";
-import { JwtPayload } from "@modules/auth/schemas/auth.schema";
+import { JwtPayload } from "@modules/application/schemas/commons";
 import config from "./config";
 
 const secret = new TextEncoder().encode(process.env.SECRET_KEY);
@@ -24,7 +24,7 @@ export const generateAccessToken = async (payload: JwtPayload) => {
 
 export const verifyToken = async (token: string | null) => {
   try {
-    token = token === null ? "" : token;
+    token = token ?? "";
     const verify = await jose.jwtVerify(token, secret, {
       issuer: `urn:${process.env.DOMAIN}:issuer`,
     });

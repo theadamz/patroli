@@ -8,7 +8,6 @@ const data = [
     name: "Briptu Adam",
     phone_no: "+62811000001",
     email: "000001@email.com",
-    photo_file: null,
     rating: 0,
   },
   {
@@ -16,7 +15,6 @@ const data = [
     name: "Kapten Malik",
     phone_no: "+62811000002",
     email: "000002@email.com",
-    photo_file: null,
     rating: 1.5,
   },
   {
@@ -24,7 +22,6 @@ const data = [
     name: "Kolonel Dina",
     phone_no: "+62811000003",
     email: "000003@email.com",
-    photo_file: null,
     rating: 2.3,
   },
 ];
@@ -51,7 +48,7 @@ async function run() {
           email: item.email,
           name: item.name,
           password: await hashPassword("123456"),
-          role_id: role?.id,
+          role_id: role!.id,
           actor: "officer",
           is_active: true,
           public_id: new ObjectId().toString(),
@@ -67,7 +64,6 @@ async function run() {
           name: item.name,
           phone_no: item.phone_no,
           email: item.email,
-          photo_filename: item.photo_file,
           rating: item.rating,
         },
       });

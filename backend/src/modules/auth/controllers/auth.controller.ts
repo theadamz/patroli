@@ -14,7 +14,7 @@ import {
 } from "@root/utilities/joseJWTAuth";
 import { csrfGenerateToken } from "@root/utilities/csrf";
 import { app } from "@root/app";
-import { getUserInfoByPublicId } from "@root/utilities/appHelper";
+import { getActorId, getUserInfoByPublicId } from "@root/utilities/appHelper";
 
 // Service
 const service = new AuthService();
@@ -41,10 +41,7 @@ export async function loginHandler(
       return reply.unauthorized("Email or password invalid");
     }
 
-    const passwordHash: string =
-      user.password === undefined || user.password === null
-        ? ""
-        : user.password;
+    const passwordHash: string = user.password ?? "";
 
     // check password
     const correctPassword = await verifyPassword(input.password, passwordHash);
@@ -53,7 +50,7 @@ export async function loginHandler(
     }
 
     // create log
-    await service.createUserLog(user.id, "web");
+    await service.createUserLog(user.id, input.platform);
 
     // hapus semua token
     await service.clearUserToken(user.id);
@@ -61,13 +58,25 @@ export async function loginHandler(
     // generate refresh token
     const refreshToken = await generateRefreshToken({
       id: user.public_id,
+      actor: user.actor,
+      actor_id:
+        user.actor !== "operator"
+          ? await getActorId(user.id, user.actor)
+          : user.public_id,
     });
 
     // register request
     app.request.auth = {
       id: user.public_id,
       user: await getUserInfoByPublicId(user.public_id),
-      payload: null,
+      payload: {
+        id: user.public_id,
+        actor: user.actor,
+        actor_id:
+          user.actor !== "operator"
+            ? await getActorId(user.id, user.actor)
+            : user.public_id,
+      },
       token: refreshToken,
     };
 
@@ -92,6 +101,11 @@ export async function loginHandler(
       // generate access token
       const accessToken = await generateAccessToken({
         id: user.public_id,
+        actor: user.actor,
+        actor_id:
+          user.actor !== "operator"
+            ? await getActorId(user.id, user.actor)
+            : user.public_id,
       });
 
       response = {
@@ -142,6 +156,8 @@ export async function refreshTokenHandler(
       // generate access token
       const accessToken = await generateAccessToken({
         id: request.auth.id,
+        actor: request.auth.payload.actor,
+        actor_id: request.auth.payload.actor_id,
       });
 
       // set cookie
@@ -205,7 +221,7 @@ export async function updatePasswordHandler(
     // compare password
     const isOldPassOk = await verifyPassword(
       input.old_password,
-      user.password === undefined ? "" : user.password
+      user.password ?? ""
     );
     if (!isOldPassOk) {
       return reply.code(400).send({ message: "Please check your password" });

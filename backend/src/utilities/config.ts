@@ -24,7 +24,7 @@ export default {
     process.env.NODE_ENV !== "production"
       ? "src/contents/uploads"
       : "contents/uploads",
-  FILE_EXT_ALLOWED: ["jpeg", "jpg", "png", "pdf", "xlsx", "xls"],
+  FILE_EXT_ALLOWED: ["jpeg", "jpg", "png", "pdf", "xlsx", "xls", "mp4"],
   FILE_ALLOWED_MIME_TYPE: [
     "image/jpeg",
     "image/jpg",
@@ -32,9 +32,10 @@ export default {
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "application/vnd.ms-excel",
+    "video/mp4",
   ],
-  FILE_UPLOAD_MAX_SIZE: 1024 * 1024 * 2, // approx 2MB
-  FILE_UPLOAD_MAX_FILEDS: 5,
+  FILE_UPLOAD_MAX_SIZE: 1024 * 1024 * 50, // approx 50MB
+  FILE_UPLOAD_MAX_FIELDS: 5,
   STATIC_PATH_CONTENTS: "contents",
   STATIC_PATH_PREFIX_CONTENTS: "/contents",
 };

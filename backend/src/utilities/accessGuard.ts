@@ -48,7 +48,7 @@ export const getPermissionByMenuCode = async (
 
 export const checkPermissionVsMethod = async (
   permission: MenuAccessType,
-  method: "GET" | "POST" | "PUT" | "DELETE" | string
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | string
 ) => {
   switch (method) {
     case "POST":
@@ -57,6 +57,7 @@ export const checkPermissionVsMethod = async (
         : permission.allow_create === true;
 
     case "PUT":
+    case "PATCH":
       return permission.allow_edit === undefined
         ? false
         : permission.allow_edit === true;

@@ -11,6 +11,20 @@ export default async function main() {
 async function run() {
   console.log("Insert data");
 
+  // menu for role dev and administrator
+  await menuRoleDevAdministrator();
+
+  // menu for role operator
+  await menuRoleOperator();
+
+  // menu for role citizen
+  await menuRoleCitizen();
+
+  // menu for role citizen
+  await menuRoleOfficer();
+}
+
+async function menuRoleDevAdministrator() {
   // Seed role menu for role dev dan administrator
   const roles = await prisma.role.findMany({
     where: { code: { in: ["dev", "administrator"] } },
@@ -39,7 +53,9 @@ async function run() {
       }); // ./role_menu
     } // ./menus
   } // ./roles
+}
 
+async function menuRoleOperator() {
   // Seed role menu for role operator
   const roleOperator = await prisma.role.findFirst({
     where: { code: "operator" },
@@ -79,4 +95,94 @@ async function run() {
       },
     }); // ./role_menu
   }
+}
+
+async function menuRoleCitizen() {
+  const role = await prisma.role.findFirst({
+    where: { code: "citizen" },
+  });
+
+  // role menu complaint
+  const complaintCategory = await prisma.menu.findFirst({
+    where: {
+      code: {
+        in: ["complaint-category"],
+      },
+    },
+  });
+
+  await prisma.role_menu.create({
+    data: {
+      role_id: role!.id,
+      menu_id: complaintCategory!.id,
+      allow_create: false,
+      allow_edit: false,
+      allow_delete: false,
+    },
+  });
+
+  // role menu complaint
+  const complaint = await prisma.menu.findFirst({
+    where: {
+      code: {
+        in: ["complaint"],
+      },
+    },
+  });
+
+  await prisma.role_menu.create({
+    data: {
+      role_id: role!.id,
+      menu_id: complaint!.id,
+      allow_create: true,
+      allow_edit: true,
+      allow_delete: true,
+    },
+  });
+}
+
+async function menuRoleOfficer() {
+  const role = await prisma.role.findFirst({
+    where: { code: "officer" },
+  });
+
+  console.log(`Insert menu for role ${role?.name}`);
+
+  // role menu complaint
+  const complaintCategory = await prisma.menu.findFirst({
+    where: {
+      code: {
+        in: ["complaint-category"],
+      },
+    },
+  });
+
+  await prisma.role_menu.create({
+    data: {
+      role_id: role!.id,
+      menu_id: complaintCategory!.id,
+      allow_create: false,
+      allow_edit: false,
+      allow_delete: false,
+    },
+  });
+
+  // role menu complaint
+  const complaint = await prisma.menu.findFirst({
+    where: {
+      code: {
+        in: ["complaint"],
+      },
+    },
+  });
+
+  await prisma.role_menu.create({
+    data: {
+      role_id: role!.id,
+      menu_id: complaint!.id,
+      allow_create: true,
+      allow_edit: true,
+      allow_delete: true,
+    },
+  });
 }

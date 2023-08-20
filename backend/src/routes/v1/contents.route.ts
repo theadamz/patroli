@@ -1,6 +1,7 @@
 import {
   $ref,
   TemplateParamsRequestSchema,
+  UploadsParamsRequestSchema,
 } from "@modules/master/schemas/contents.schema";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
@@ -8,7 +9,7 @@ export const options = {
   prefix: "v1/contents",
 };
 
-async function testRoutes(server: FastifyInstance) {
+async function contentsRoutes(server: FastifyInstance) {
   server.get(
     "/templates/:template_name",
     {
@@ -32,6 +33,24 @@ async function testRoutes(server: FastifyInstance) {
       return reply.sendFile(`templates/${filename}`);
     }
   );
+
+  server.get(
+    "/assets/:file_name",
+    {
+      preHandler: [server.joseJWTAuth],
+      schema: {
+        params: $ref("uploadsParamsRequestSchema"),
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: UploadsParamsRequestSchema;
+      }>,
+      reply: FastifyReply
+    ) => {
+      return reply.sendFile(`uploads/${request.params.file_name}`);
+    }
+  );
 }
 
-export default testRoutes;
+export default contentsRoutes;

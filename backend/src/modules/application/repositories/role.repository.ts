@@ -36,7 +36,7 @@ class RoleRepository {
     const skip = query.page === 1 ? 0 : (query.page - 1) * query.per_page;
 
     // get data and count
-    const [rows, rowsCount] = await prisma.$transaction([
+    const [records, recordsCount] = await prisma.$transaction([
       prisma.role.findMany({
         select: {
           id: true,
@@ -56,13 +56,12 @@ class RoleRepository {
     ]);
 
     return {
-      // @ts-ignore
-      data: rows,
-      total: rowsCount,
+      data: records,
+      total: recordsCount,
       per_page: query.per_page,
       current_page: query.page,
       last_page:
-        query.per_page === 0 ? 0 : Math.ceil(rowsCount / query.per_page),
+        query.per_page === 0 ? 0 : Math.ceil(recordsCount / query.per_page),
     };
   }
 
@@ -167,7 +166,7 @@ class RoleRepository {
   }
 
   async getRoleAccesss(role_id: string) {
-    const rows = await prisma.role_menu.findMany({
+    const records = await prisma.role_menu.findMany({
       where: {
         role_id: role_id,
       },
@@ -189,8 +188,7 @@ class RoleRepository {
       },
     });
 
-    // @ts-ignore
-    return rows.map(({ role, menu, ...row }) => {
+    return records.map(({ role, menu, ...row }) => {
       const result = {
         ...row,
         ...{

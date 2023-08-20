@@ -1,17 +1,18 @@
+import {
+  REGEX_ID_CARD_NUMBER,
+  fileType,
+  fileTypeOptional,
+} from "@modules/application/schemas/commons";
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 // Base schema
 const citizenSchema = {
   id: z.string().nullish(),
-  id_card_number: z.string(),
+  id_card_number: z.string().regex(REGEX_ID_CARD_NUMBER),
   name: z.string(),
   phone_no: z.string(),
   email: z.string().email(),
-  photo_file: z
-    .custom<FileList>()
-    .transform((file) => file.length > 0 && file.item(0))
-    .nullish(),
   photo_filename: z.string().nullish(),
   photo_filename_hash: z.string().nullish(),
   is_active: z.boolean().nullish(),
@@ -40,10 +41,12 @@ const citizenParamsRequestSchema = z.object({
 
 const citizenCreateRequestSchema = z.object({
   ...citizenSchema,
+  photo_file: z.array(fileType),
 });
 
 const citizenUpdateRequestSchema = z.object({
   ...citizenSchema,
+  photo_file: z.array(fileTypeOptional).nullish(),
 });
 
 // Objects response

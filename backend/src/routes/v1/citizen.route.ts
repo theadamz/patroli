@@ -80,6 +80,7 @@ export default async function citizenRoutes(
         server.csrfGuard,
       ],
       schema: {
+        consumes: ["multipart/form-data"],
         params: $ref("citizenParamsRequestSchema"),
         body: $ref("citizenUpdateRequestSchema"),
         response: {

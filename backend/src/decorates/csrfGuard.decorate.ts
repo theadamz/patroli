@@ -21,12 +21,7 @@ export const main = async (fastify: FastifyInstance) => {
         config.TOKEN_CSRF_REGENERATE_FLAG = false;
 
         // get token from cookie
-        // @ts-ignore
-        const csrfToken: string =
-          request.cookies[config.TOKEN_CSRF_NAME] === undefined ||
-          request.cookies[config.TOKEN_CSRF_NAME] === null
-            ? ""
-            : request.cookies[config.TOKEN_CSRF_NAME];
+        const csrfToken: string = request.cookies[config.TOKEN_CSRF_NAME] ?? "";
 
         // if csrf empty
         if (csrfToken === "") {

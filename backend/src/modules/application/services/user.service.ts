@@ -17,16 +17,15 @@ class UserService {
 
   async getUsers(query: UserQueryParametersSchema) {
     // get data
-    const users = await this.repository.getUsers(query);
+    const records = await this.repository.getUsers(query);
 
     return {
-      // @ts-ignore
-      data: users.data,
-      total: users.total,
+      data: records.data,
+      total: records.total,
       per_page: query.per_page,
       current_page: query.page,
       last_page:
-        query.per_page === 0 ? 0 : Math.ceil(users.total / query.per_page),
+        query.per_page === 0 ? 0 : Math.ceil(records.total / query.per_page),
     };
   }
 
@@ -37,63 +36,28 @@ class UserService {
     }
 
     // get data
-    const user = await this.repository.getUserById(id, usePassword);
+    const record = await this.repository.getUserById(id, usePassword);
 
-    // if data not found
-    if (user === null) return null;
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role_id: user.role_id,
-      role_name: user.role?.name,
-      actor: user.actor,
-      is_active: user.is_active,
-      public_id: user.public_id,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-      ...(usePassword ? { password: user.password } : null),
-    };
+    return record;
   }
 
   async getUserByEmail(
     email: string,
     usePassword: boolean = false
   ): Promise<UserResponseSchema | null> {
-    const user = await this.repository.getUserByEmail(email);
+    const record = await this.repository.getUserByEmail(email, usePassword);
 
-    // if data not found
-    if (user === null) return null;
-
-    let response = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role_id: user.role_id,
-      role_name: user.role?.name,
-      actor: user.actor,
-      is_active: user.is_active,
-      public_id: user.public_id,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-    };
-
-    if (usePassword) {
-      response = { ...response, ...{ password: user.password } };
-    }
-
-    return response;
+    return record;
   }
 
   async createUser(input: UserCreateRequestSchema) {
     // create data
-    const createdData = await this.repository.createUser(
+    const record = await this.repository.createUser(
       input,
       app.request.auth.user.id
     );
 
-    return createdData;
+    return record;
   }
 
   async updateUser(
@@ -102,19 +66,16 @@ class UserService {
     user_id: string | null
   ) {
     // Update data
-    const updateData = await this.repository.updateUser(id, input, user_id);
+    const record = await this.repository.updateUser(id, input, user_id);
 
-    // Remove property password from updateData and make a new object called properties
-    const { password: _, ...response } = updateData;
-
-    return response;
+    return record;
   }
 
   async deleteUser(id: string) {
     // Hapus data
-    const deleteData = await this.repository.deleteUser(id);
+    const record = await this.repository.deleteUser(id);
 
-    return deleteData;
+    return record;
   }
 
   async getUserProfileById(id: string) {
@@ -145,7 +106,6 @@ class UserService {
         ...{
           phone_no: profile.officer?.phone_no,
           email: profile.user?.email,
-          photo_file: profile.officer?.photo_filename_hash,
         },
       };
     } else {
@@ -154,7 +114,6 @@ class UserService {
         ...{
           phone_no: profile.citizen?.phone_no,
           email: profile.user?.email,
-          photo_filename_hash: profile.citizen?.photo_filename_hash,
         },
       };
     }

@@ -1,32 +1,17 @@
+import { platformEnum } from "@modules/application/schemas/commons";
 import { buildJsonSchemas } from "fastify-zod";
 import { z } from "zod";
 
 // Base schema
 const authSchema = {
   email: z.string().email(),
-  password: z.string({
-    required_error: "Password dibutuhkan",
-  }),
+  password: z.string(),
 };
-
-const userInfo = z.object({
-  id: z.string(),
-  public_id: z.string(),
-  email: z.string().email(),
-  role_id: z.string(),
-  role_name: z.string(),
-});
-
-const jwtPayload = z.object({
-  id: z.string(),
-});
-
-// Enums
-const platformEnum = z.enum(["web", "mobile_officer", "mobile_community"]);
 
 // Objects request
 const authLoginRequestSchema = z.object({
   ...authSchema,
+  platform: platformEnum,
 });
 
 const authRefreshTokenParametersSchema = z.object({
@@ -79,11 +64,6 @@ const profileResponseSchema = z.object({
 const responseSchema = z.object({
   message: z.string(),
 });
-
-// Types / enums
-export type PlatformEnum = z.infer<typeof platformEnum>;
-export type UserInfo = z.infer<typeof userInfo>;
-export type JwtPayload = z.infer<typeof jwtPayload>;
 
 // Types request
 export type AuthLoginRequestSchema = z.infer<typeof authLoginRequestSchema>;

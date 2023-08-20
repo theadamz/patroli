@@ -7,10 +7,29 @@ import {
 import { ObjectId } from "bson";
 import { hashPassword } from "@utilities/hashPassword";
 
+const selectedColumns = {
+  id: true,
+  user_id: true,
+  id_card_number: true,
+  name: true,
+  phone_no: true,
+  email: true,
+  last_coordinates: true,
+  is_active: true,
+  created_at: true,
+  updated_at: true,
+  user: {
+    select: {
+      photo_filename: true,
+      photo_filename_hash: true,
+    },
+  },
+};
+
 class CitizenRepository {
   async getCitizens(query: CitizenQueryParametersSchema) {
     // search
-    const search = query.search === undefined ? "" : query.search;
+    const search = query.search ?? "";
 
     // where parameters
     const whereParameters = {
@@ -22,14 +41,8 @@ class CitizenRepository {
     };
 
     // order by
-    const sortDirection =
-      query.sort_direction === undefined || query.sort_direction === null
-        ? "asc"
-        : query.sort_direction;
-    const sortBy =
-      query.sort_by === undefined || query.sort_by === null
-        ? "id"
-        : query.sort_by;
+    const sortDirection = query.sort_direction ?? "asc";
+    const sortBy = query.sort_by ?? "id";
     const orderBy = {
       [sortBy]: sortDirection,
     };
@@ -44,20 +57,7 @@ class CitizenRepository {
     // get data and count
     const [records, recordsCount] = await prisma.$transaction([
       prisma.citizen.findMany({
-        select: {
-          id: true,
-          user_id: true,
-          id_card_number: true,
-          name: true,
-          phone_no: true,
-          email: true,
-          photo_filename: true,
-          photo_filename_hash: true,
-          last_coordinates: true,
-          is_active: true,
-          created_at: true,
-          updated_at: true,
-        },
+        select: selectedColumns,
         where: whereParameters,
         orderBy: orderBy,
         skip: skip,
@@ -69,8 +69,13 @@ class CitizenRepository {
     ]);
 
     return {
-      // @ts-ignore
-      data: records,
+      data: records.map(({ user, ...rest }) => {
+        return {
+          ...rest,
+          photo_filename: user.photo_filename,
+          photo_filename_hash: user.photo_filename_hash,
+        };
+      }),
       total: recordsCount,
       per_page: query.per_page,
       current_page: query.page,
@@ -84,23 +89,16 @@ class CitizenRepository {
       where: {
         id,
       },
-      select: {
-        id: true,
-        user_id: true,
-        id_card_number: true,
-        name: true,
-        phone_no: true,
-        email: true,
-        photo_filename: true,
-        photo_filename_hash: true,
-        last_coordinates: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
+      select: selectedColumns,
     });
 
-    return record;
+    if (record === null) return null;
+
+    return {
+      ...record,
+      photo_filename: record.user.photo_filename,
+      photo_filename_hash: record.user.photo_filename_hash,
+    };
   }
 
   async getCitizenByCode(code: string) {
@@ -108,23 +106,16 @@ class CitizenRepository {
       where: {
         id_card_number: code,
       },
-      select: {
-        id: true,
-        user_id: true,
-        id_card_number: true,
-        name: true,
-        phone_no: true,
-        email: true,
-        photo_filename: true,
-        photo_filename_hash: true,
-        last_coordinates: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
+      select: selectedColumns,
     });
 
-    return record;
+    if (record === null) return null;
+
+    return {
+      ...record,
+      photo_filename: record.user.photo_filename,
+      photo_filename_hash: record.user.photo_filename_hash,
+    };
   }
 
   async getCitizenByEmail(email: string) {
@@ -132,23 +123,16 @@ class CitizenRepository {
       where: {
         email: email,
       },
-      select: {
-        id: true,
-        user_id: true,
-        id_card_number: true,
-        name: true,
-        phone_no: true,
-        email: true,
-        photo_filename: true,
-        photo_filename_hash: true,
-        last_coordinates: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
+      select: selectedColumns,
     });
 
-    return record;
+    if (record === null) return null;
+
+    return {
+      ...record,
+      photo_filename: record.user.photo_filename,
+      photo_filename_hash: record.user.photo_filename_hash,
+    };
   }
 
   async getCitizenByPhone(phone_no: string) {
@@ -156,23 +140,16 @@ class CitizenRepository {
       where: {
         phone_no: phone_no,
       },
-      select: {
-        id: true,
-        user_id: true,
-        id_card_number: true,
-        name: true,
-        phone_no: true,
-        email: true,
-        photo_filename: true,
-        photo_filename_hash: true,
-        last_coordinates: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
+      select: selectedColumns,
     });
 
-    return record;
+    if (record === null) return null;
+
+    return {
+      ...record,
+      photo_filename: record.user.photo_filename,
+      photo_filename_hash: record.user.photo_filename_hash,
+    };
   }
 
   async createCitizen(
@@ -195,8 +172,10 @@ class CitizenRepository {
           email: input.email,
           password: password,
           name: input.name,
-          role_id: role?.id,
+          role_id: role!.id,
           actor: "citizen",
+          photo_filename: input.photo_filename,
+          photo_filename_hash: input.photo_filename_hash,
           public_id: new ObjectId().toString(),
           created_by: user_id,
           created_at: new Date(),
@@ -204,21 +183,26 @@ class CitizenRepository {
       });
 
       // save
-      const citizen = await tx.citizen.create({
+      const record = await tx.citizen.create({
         data: {
           user_id: user.id,
           id_card_number: input.id_card_number,
           name: input.name,
           phone_no: input.phone_no,
           email: input.email,
-          photo_filename: input.photo_filename,
-          photo_filename_hash: input.photo_filename_hash,
           is_active: true,
           created_at: new Date(),
         },
+        select: selectedColumns,
       });
 
-      return citizen;
+      if (record === null) return null;
+
+      return {
+        ...record,
+        photo_filename: record.user.photo_filename,
+        photo_filename_hash: record.user.photo_filename_hash,
+      };
     });
 
     return transaction;
@@ -229,63 +213,60 @@ class CitizenRepository {
     input: CitizenUpdateRequestSchema,
     user_id: string | null
   ) {
-    const transaction = await prisma.$transaction(async (tx) => {
-      // save
-      const citizen = await tx.citizen.update({
-        where: {
-          id: id,
+    const record = await prisma.citizen.update({
+      where: {
+        id: id,
+      },
+      data: {
+        id_card_number: input.id_card_number,
+        name: input.name,
+        phone_no: input.phone_no,
+        email: input.email,
+        is_active: input.is_active === null ? false : input.is_active,
+        updated_at: new Date(),
+        user: {
+          update: {
+            email: input.email,
+            name: input.name,
+            photo_filename: input.photo_filename,
+            photo_filename_hash: input.photo_filename_hash,
+            updated_by: user_id,
+            updated_at: new Date(),
+          },
         },
-        data: {
-          id_card_number: input.id_card_number,
-          name: input.name,
-          phone_no: input.phone_no,
-          email: input.email,
-          photo_filename: input.photo_filename,
-          photo_filename_hash: input.photo_filename_hash,
-          is_active: input.is_active === null ? false : input.is_active,
-          updated_at: new Date(),
-        },
-      });
-
-      // Buat user
-      await tx.user.update({
-        where: {
-          id: citizen.user_id,
-        },
-        data: {
-          email: input.email,
-          name: input.name,
-          updated_by: user_id,
-          updated_at: new Date(),
-        },
-      });
-
-      return citizen;
+      },
     });
 
-    return transaction;
+    return record;
   }
 
   async deleteCitizen(id: string) {
-    const transaction = await prisma.$transaction(async (tx) => {
+    const record = await prisma.$transaction(async (tx) => {
       // delete citizen
-      const citizen = await tx.citizen.delete({
+      const record = await tx.citizen.delete({
         where: {
           id,
         },
+        select: selectedColumns,
       });
 
       // delete user
       await tx.user.delete({
         where: {
-          id: citizen.user_id,
+          id: record.user_id,
         },
       });
 
-      return citizen;
+      if (record === null) return null;
+
+      return {
+        ...record,
+        photo_filename: record.user.photo_filename,
+        photo_filename_hash: record.user.photo_filename_hash,
+      };
     });
 
-    return transaction;
+    return record;
   }
 }
 

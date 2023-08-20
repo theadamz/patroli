@@ -12,6 +12,8 @@ const userSchema = {
   role_id: z.string().nullish(),
   role_name: z.string().nullish(),
   actor: z.enum(["operator", "officer", "citizen"]),
+  photo_filename: z.string().nullish(),
+  photo_filename_hash: z.string().nullish(),
   is_active: z.boolean().nullish(),
   created_by: z.string().nullish(),
   updated_by: z.string().nullish(),

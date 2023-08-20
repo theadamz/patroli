@@ -13,7 +13,7 @@ datasource db {
 enum platform {
   web
   mobile_officer
-  mobile_community
+  mobile_citizen
 }
 
 enum actor {
@@ -22,16 +22,29 @@ enum actor {
   citizen
 }
 
-enum complain_status {
+enum complaint_status {
   menunggu
   proses
   selesai
+  tolak
+  batal
 }
 
 type log {
   message    String
-  created_by String
-  created_at DateTime
+  old_data   Json?
+  created_by String?   @db.ObjectId
+  created_at DateTime? @default(now())
+}
+
+type video_file {
+  video_filename      String
+  video_filename_hash String
+}
+
+type picture_file {
+  picture_filename      String
+  picture_filename_hash String
 }
 
 model menu {
@@ -89,9 +102,11 @@ model user {
   email                   String    @unique
   password                String
   name                    String
-  role_id                 String?   @db.ObjectId
-  role                    role?     @relation(fields: [role_id], references: [id])
+  role_id                 String    @db.ObjectId
+  role                    role      @relation(fields: [role_id], references: [id])
   actor                   actor     @default(citizen)
+  photo_filename          String?   @default("_blank_photo.png")
+  photo_filename_hash     String?   @default("_blank_photo.png")
   is_active               Boolean   @default(true)
   created_by              String?   @db.ObjectId
   updated_by              String?   @db.ObjectId
@@ -126,23 +141,21 @@ model user_token {
 }
 
 model officer {
-  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
-  user_id             String      @db.ObjectId
-  user                user        @relation(fields: [user_id], references: [id])
-  code                String      @unique
-  name                String
-  phone_no            String      @unique
-  email               String      @unique
-  photo_filename      String?
-  photo_filename_hash String?
-  rating              Float       @default(0)
-  last_coordinates    Float[]     @default([0, 0])
-  is_active           Boolean     @default(true)
-  created_by          String?     @db.ObjectId
-  updated_by          String?     @db.ObjectId
-  created_at          DateTime?   @default(now())
-  updated_at          DateTime?
-  complain            complaint[]
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  user_id          String      @unique @db.ObjectId
+  user             user        @relation(fields: [user_id], references: [id])
+  code             String      @unique
+  name             String
+  phone_no         String      @unique
+  email            String      @unique
+  rating           Float       @default(0)
+  last_coordinates Float[]     @default([0, 0])
+  is_active        Boolean     @default(true)
+  created_by       String?     @db.ObjectId
+  updated_by       String?     @db.ObjectId
+  created_at       DateTime?   @default(now())
+  updated_at       DateTime?
+  complaint        complaint[]
 
   @@map("officers")
 }
@@ -163,27 +176,25 @@ model officer_team {
 }
 
 model citizen {
-  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
-  user_id             String      @db.ObjectId
-  user                user        @relation(fields: [user_id], references: [id])
-  id_card_number      String      @unique // nomor KTP
-  name                String
-  phone_no            String      @unique
-  email               String      @unique
-  photo_filename      String?
-  photo_filename_hash String?
-  last_coordinates    Float[]     @default([0, 0])
-  is_active           Boolean     @default(true)
-  created_by          String?     @db.ObjectId
-  updated_by          String?     @db.ObjectId
-  created_at          DateTime?   @default(now())
-  updated_at          DateTime?
-  complain            complaint[]
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  user_id          String      @unique @db.ObjectId
+  user             user        @relation(fields: [user_id], references: [id])
+  id_card_number   String      @unique // nomor KTP
+  name             String
+  phone_no         String      @unique
+  email            String      @unique
+  last_coordinates Float[]     @default([0, 0])
+  is_active        Boolean     @default(true)
+  created_by       String?     @db.ObjectId
+  updated_by       String?     @db.ObjectId
+  created_at       DateTime?   @default(now())
+  updated_at       DateTime?
+  complaint        complaint[]
 
   @@map("citizens")
 }
 
-model complain_category {
+model complaint_category {
   id         String      @id @default(auto()) @map("_id") @db.ObjectId
   name       String
   is_visible Boolean     @default(true)
@@ -191,32 +202,35 @@ model complain_category {
   updated_by String?     @db.ObjectId
   created_at DateTime?   @default(now())
   updated_at DateTime?
-  complain   complaint[]
+  complaint  complaint[]
 
-  @@map("complain_categories")
+  @@map("complaint_categories")
 }
 
 model complaint {
-  id                   String            @id @default(auto()) @map("_id") @db.ObjectId
-  complain_category_id String            @db.ObjectId
-  category             complain_category @relation(fields: [complain_category_id], references: [id])
-  doc_no               String            @unique
-  doc_date             DateTime          @db.Date
-  citizen_id           String?           @db.ObjectId
-  citizen              citizen?          @relation(fields: [citizen_id], references: [id])
-  officer_id           String            @db.ObjectId
-  officer              officer           @relation(fields: [officer_id], references: [id])
-  description          String
-  video_file           String?
-  picture_files        String[]
-  status               complain_status   @default(menunggu)
-  rating               Float             @default(0)
-  logs                 log[]
-  coordinates          Float[]
-  created_by           String?           @db.ObjectId
-  updated_by           String?           @db.ObjectId
-  created_at           DateTime?         @default(now())
-  updated_at           DateTime?
+  id                    String             @id @default(auto()) @map("_id") @db.ObjectId
+  doc_no                String             @unique
+  doc_date              DateTime           @db.Date
+  complaint_category_id String             @db.ObjectId
+  complaint_category    complaint_category @relation(fields: [complaint_category_id], references: [id])
+  citizen_id            String             @db.ObjectId
+  citizen               citizen            @relation(fields: [citizen_id], references: [id])
+  officer_id            String?            @db.ObjectId
+  officer               officer?           @relation(fields: [officer_id], references: [id])
+  description           String
+  video                 video_file?
+  pictures              picture_file[]
+  status                complaint_status   @default(menunggu)
+  reason                String?
+  rating                Float              @default(0)
+  coordinates           Float[]
+  logs                  log[]
+  created_by            String?            @db.ObjectId
+  updated_by            String?            @db.ObjectId
+  created_at            DateTime?          @default(now())
+  updated_at            DateTime?
 
+  @@index([citizen_id])
+  @@index([officer_id])
   @@map("complaints")
 }

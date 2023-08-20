@@ -16,12 +16,8 @@ export const main = async (fastify: FastifyInstance) => {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         // get token from cookie
-        // @ts-ignore
         const refreshToken: string =
-          request.cookies[config.TOKEN_REFRESH_NAME] === undefined ||
-          request.cookies[config.TOKEN_REFRESH_NAME] === null
-            ? ""
-            : request.cookies[config.TOKEN_REFRESH_NAME];
+          request.cookies[config.TOKEN_REFRESH_NAME] ?? "";
 
         // if token is empty
         if (refreshToken === "") {
@@ -45,12 +41,8 @@ export const main = async (fastify: FastifyInstance) => {
           request.raw.url !== "/refresh-token/access"
         ) {
           // get token from cookie
-          // @ts-ignore
           const accessToken: string =
-            request.cookies[config.TOKEN_ACCESS_NAME] === undefined ||
-            request.cookies[config.TOKEN_ACCESS_NAME] === null
-              ? ""
-              : request.cookies[config.TOKEN_ACCESS_NAME];
+            request.cookies[config.TOKEN_ACCESS_NAME] ?? "";
 
           // if token is empty
           if (accessToken === "") {
