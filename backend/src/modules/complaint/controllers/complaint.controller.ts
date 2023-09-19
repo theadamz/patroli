@@ -17,7 +17,7 @@ import {
   uploadMultiFile,
   uploadSingleFile,
 } from "@utilities/fileHandler";
-import config from "@utilities/config";
+import config from "@root/config";
 import { FileType } from "@modules/application/schemas/commons";
 import CategoryRepository from "../repositories/category.repository";
 import { ComplaintFileNameParamsRequestSchema } from "../schemas/complaint.schema";

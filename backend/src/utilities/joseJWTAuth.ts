@@ -1,6 +1,6 @@
 import * as jose from "jose";
 import { JwtPayload } from "@modules/application/schemas/commons";
-import config from "./config";
+import config from "../config";
 
 const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 

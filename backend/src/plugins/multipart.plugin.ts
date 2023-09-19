@@ -1,5 +1,5 @@
 import FastifyMultipart, { FastifyMultipartOptions } from "@fastify/multipart";
-import config from "@utilities/config";
+import config from "@root/config";
 
 export default FastifyMultipart;
 

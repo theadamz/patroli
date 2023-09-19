@@ -3,7 +3,7 @@ import util from "util";
 import { Readable, pipeline } from "stream";
 import { ObjectId } from "bson";
 import { parse } from "path";
-import config from "./config";
+import config from "../config";
 import { FileType } from "@modules/application/schemas/commons";
 
 export enum FileHandlerResult {

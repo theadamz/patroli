@@ -1,0 +1,15 @@
+[
+    { "code": "menu", "name": "Menu Akses", "is_visible": true },
+    { "code": "role", "name": "Role", "is_visible": true },
+    { "code": "user", "name": "Pengguna", "is_visible": true },
+    { "code": "officer", "name": "Petugas", "is_visible": true },
+    { "code": "citizen", "name": "", "is_visible": true },
+    { 
+        "code": "complaint-parent", "name": "Keluhan", "is_visible": true, 
+        "children": [
+            { "code": "complaint-category", "name": "Kategori", "is_visible": true },
+            { "code": "complaint", "name": "Laporan", "is_visible": true }
+        ]
+    },
+    { "code": "report", "name": "Laporan", "is_visible": true }
+]

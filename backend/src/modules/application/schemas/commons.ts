@@ -11,7 +11,7 @@ const userInfo = z.object({
 const jwtPayload = z.object({
   id: z.string(),
   actor: z.string(),
-  actor_id: z.string(),
+  actor_id: z.string(), // actor_id used for citizen and officer to select thier own data
 });
 
 export const platformEnum = z.enum(["web", "mobile_officer", "mobile_citizen"]);

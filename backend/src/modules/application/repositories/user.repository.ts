@@ -14,6 +14,7 @@ const selectedColumns = {
   role_id: true,
   role: {
     select: {
+      code: true,
       name: true,
     },
   },
@@ -67,7 +68,7 @@ class UserRepository {
 
     return {
       data: records.map(({ role, ...rest }) => {
-        return { ...rest, role_name: role.name };
+        return { ...rest, role_code: role.code, role_name: role.name };
       }),
       total: recordsCount,
     };
@@ -88,7 +89,8 @@ class UserRepository {
 
     return {
       ...record,
-      role_name: record.name,
+      role_code: record.role.code,
+      role_name: record.role.name,
     };
   }
 
@@ -107,7 +109,8 @@ class UserRepository {
 
     return {
       ...record,
-      role_name: record.name,
+      role_code: record.role.code,
+      role_name: record.role.name,
     };
   }
 

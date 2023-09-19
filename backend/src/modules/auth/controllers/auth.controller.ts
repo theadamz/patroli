@@ -7,7 +7,7 @@ import {
 } from "@modules/auth/schemas/auth.schema";
 import UserService from "@modules/application/services/user.service";
 import { verifyPassword } from "@utilities/hashPassword";
-import config from "@utilities/config";
+import config from "@root/config";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -82,8 +82,11 @@ export async function loginHandler(
 
     // prepare response
     let response = {
+      public_id: user.public_id,
       email: user.email,
       name: user.name,
+      actor: user.actor,
+      role_code: user.role_code,
       role_name: user.role_name,
       token: {
         refresh: refreshToken,
@@ -177,7 +180,7 @@ export async function refreshTokenHandler(
       return reply.code(201).send({ token: csrfToken });
     }
 
-    return reply.code(200).send({ message: "No token generated" });
+    return reply.code(404).send({ message: "No token generated" });
   } catch (e: any) {
     // Console log
     console.log(e);

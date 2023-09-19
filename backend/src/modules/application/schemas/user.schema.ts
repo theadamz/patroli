@@ -82,7 +82,7 @@ const userDeleteRequestSchema = z.object({
 const userResponseSchema = z.object({
   ...userSchema,
   id: z.string(),
-  role_id: z.string().nullish(),
+  role_code: z.string().nullish(),
   role_name: z.string().nullish(),
   public_id: z.string(),
 });

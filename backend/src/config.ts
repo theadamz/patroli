@@ -1,7 +1,7 @@
 export default {
   TOKEN_REFRESH_NAME: "_rt", // refresh_token name in cookie
   TOKEN_REFRESH_EXPIRE: "1d",
-  TOKEN_ACCESS: false,
+  TOKEN_ACCESS: true,
   TOKEN_ACCESS_NAME: "_at", // access token name in cookie
   TOKEN_ACCESS_EXPIRE: "5m",
   TOKEN_CSRF: true,
@@ -38,4 +38,5 @@ export default {
   FILE_UPLOAD_MAX_FIELDS: 5,
   STATIC_PATH_CONTENTS: "contents",
   STATIC_PATH_PREFIX_CONTENTS: "/contents",
+  CORS_WHITELIST: ["localhost", "www.theadamz.local"],
 };

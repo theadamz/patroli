@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import config from "@utilities/config";
+import config from "@root/config";
 import { csrfVerifyToken } from "@root/utilities/csrf";
 
 // declare

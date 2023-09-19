@@ -13,7 +13,7 @@ import {
   deleteFile,
   uploadSingleFile,
 } from "@utilities/fileHandler";
-import config from "@utilities/config";
+import config from "@root/config";
 
 // service
 const service = new OfficerService();

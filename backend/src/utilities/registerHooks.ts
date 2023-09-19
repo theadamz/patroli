@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import config from "./config";
+import config from "../config";
 import { generateAccessToken } from "./joseJWTAuth";
 import { JwtPayload, UserInfo } from "../modules/application/schemas/commons";
 import { csrfGenerateToken } from "./csrf";

@@ -10,6 +10,7 @@ export const main = async (fastify: FastifyInstance): Promise<void> => {
       domain: process.env.DOMAIN,
       path: "/",
       httpOnly: true,
+      // secure: true,
     },
     hook: "onRequest",
   } as FastifyCookieOptions);

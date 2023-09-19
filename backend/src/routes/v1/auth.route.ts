@@ -14,7 +14,7 @@ import {
   refreshTokenHandler,
   updatePasswordHandler,
 } from "@modules/auth/controllers/auth.controller";
-import config from "@utilities/config";
+import config from "@root/config";
 import { verifyToken } from "@utilities/joseJWTAuth";
 
 export const options: FastifyPluginOptions = {

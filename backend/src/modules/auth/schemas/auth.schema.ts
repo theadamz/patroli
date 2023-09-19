@@ -29,8 +29,11 @@ const updatePasswordRequestSchema = z.object({
 
 // Objects response
 const authLoginResponseSchema = z.object({
+  public_id: z.string(),
   email: z.string().email(),
   name: z.string(),
+  actor: z.string(),
+  role_code: z.string(),
   role_name: z.string(),
   token: z.object({
     refresh: z.string(),

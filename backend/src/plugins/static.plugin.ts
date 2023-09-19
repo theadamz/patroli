@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import Static, { FastifyStaticOptions } from "@fastify/static";
-import config from "@utilities/config";
+import config from "@root/config";
 import { join } from "path";
 
 export const type = "custom";

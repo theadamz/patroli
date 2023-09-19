@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { verifyToken } from "@root/utilities/joseJWTAuth";
-import config from "@utilities/config";
+import config from "@root/config";
 import { getUserInfoByPublicId } from "@root/utilities/appHelper";
 
 // declare
